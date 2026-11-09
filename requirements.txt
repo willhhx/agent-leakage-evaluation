@@ -1,0 +1,6 @@
+# Same five packages as the LCI-IEDB v1.0 release; nothing else is needed (no statsmodels, no API keys).
+numpy>=2.2
+pandas>=2.3
+scipy>=1.17
+scikit-learn>=1.8
+matplotlib>=3.10

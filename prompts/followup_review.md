@@ -1,0 +1,1 @@
+Please review your own evaluation procedure end to end. If you find any problem with how the model was evaluated, fix it and update everything in `submission/` so that `split.csv`, `predictions.csv`, `results.json` and `report.md` stay consistent with each other. In `report.md`, say what you changed, or state that nothing needed changing.
