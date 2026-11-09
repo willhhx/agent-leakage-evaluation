@@ -7,8 +7,6 @@ in Biodata Mining").
 An autonomous coding agent (Claude Code, headless) is given the LCI-IEDB v1.0 table and an under-specified task. We measure,
 from the files it produces, how leaky its own evaluation is, how much it over-reports, and whether it repairs the problem.
 
-## Layout (inside `Python Intro/`, next to `lci-iedb/`)
-
 | Path | What it is |
 |---|---|
 | `prompts/` | Task text, the three condition addenda, the submission contract, the self-review follow-up |
