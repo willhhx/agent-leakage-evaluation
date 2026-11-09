@@ -1,11 +1,11 @@
 # agent-leakage-evaluation
 
-Code for the study *Do Autonomous AI Analysis Agents Detect and Avoid Data Leakage? A Controlled Evaluation of
-Split-Selection Behavior on a Leakage-Audited Immunology Benchmark* (target: BioData Mining, collection "Uses of Agentic AI
-in Biodata Mining").
+Code, prompts and analysis for the study *Do Autonomous AI Analysis Agents Detect and Avoid Data Leakage? A Controlled
+Evaluation of Split Selection on a Leakage-Audited Immunology Benchmark*.
 
-An autonomous coding agent (Claude Code, headless) is given the LCI-IEDB v1.0 table and an under-specified task. We measure,
-from the files it produces, how leaky its own evaluation is, how much it over-reports, and whether it repairs the problem.
+An autonomous coding agent (Claude Code, headless) is given the LCI-IEDB v1.0 table and an under-specified task. From the
+files it produces we measure how leaky its own evaluation split is, how much it over-reports performance, and whether it
+repairs the problem when asked to review its work.
 
 ## Layout
 
@@ -18,11 +18,15 @@ from the files it produces, how leaky its own evaluation is, how much it over-re
 | `src/00_validate_setup.py` ... `07_reference_baseline.py` | Command-line steps (below) |
 | `docs/rubric.md` | Manual coding rubric and the pre-registered hypotheses/outcomes |
 | `tests/` | 32 tests, including mock agents, a stand-in `claude` CLI and a full pipeline run |
-| `runs/`, `results/`, `labels/` | Created as you go (`runs/` is git-ignored) |
+| `runs/`, `results/`, `labels/` | Created when the pipeline runs (`runs/` is git-ignored) |
 
-Put the LCI-IEDB v1.0 release next to this folder (default `../lci-iedb/data/release/LCI-IEDB_v1.0`), or set `LCI_IEDB_RELEASE=/path/to/LCI-IEDB_v1.0`. Only numpy,
-pandas, scipy, scikit-learn and matplotlib are needed (same as the release). No API key: agents run through your Claude Code
-login.
+## Requirements
+
+* The LCI-IEDB v1.0 release, placed at `../lci-iedb/data/release/LCI-IEDB_v1.0` or pointed to with
+  `LCI_IEDB_RELEASE=/path/to/LCI-IEDB_v1.0`.
+* Python 3 with numpy, pandas, scipy, scikit-learn and matplotlib (`requirements.txt`).
+* The Claude Code command-line tool, signed in (`claude` then `/login`). No API key is read by the code; runs use the
+  signed-in account and count against its usage limits or billing.
 
 ## Quick start
 
@@ -30,16 +34,17 @@ login.
 cd agent-leakage-evaluation
 python3 src/00_validate_setup.py          # must say ALL CHECKS PASSED
 python3 src/07_reference_baseline.py      # agent-facing baseline, ~1 min
-python3 src/06_power.py                   # how many trials per condition you need
+python3 src/06_power.py                   # power for the number of trials per condition
 python3 src/03_run_batch.py --pilot --dry-run      # see the schedule
-python3 src/03_run_batch.py --pilot                # 15 trials into runs/pilot (resumable; --limit N to spread usage)
+python3 src/03_run_batch.py --pilot                # 15 trials into runs/pilot (resumable; --limit N spreads usage)
 python3 src/04_score_runs.py --runs-dir runs/pilot --label-sheet
 python3 src/05_analyze.py --scores results/pilot_run_scores.csv
 ```
-Then freeze `docs/rubric.md`, run the main experiment (`03_run_batch.py --reps N`, `04`, `05` on `runs/main`) and discard the
-pilot from the final analysis. `bash run_pipeline.sh` chains everything. Tests: `python3 -m unittest discover -s tests -t .`.
+The rubric (`docs/rubric.md`) is frozen after the pilot. The main experiment is then run with `03_run_batch.py --reps N`,
+scored with `04` and analysed with `05` on `runs/main`; pilot runs are excluded from the final analysis.
+`bash run_pipeline.sh` chains the steps. Tests: `python3 -m unittest discover -s tests -t .`.
 
-Manual mode (any other agent, or a person): `01_prepare_workspace.py --condition C0 --rep 1`, work in
+Manual mode (for any other agent, or a person): `01_prepare_workspace.py --condition C0 --rep 1`, work in
 `runs/C0_r01/work/` with `prompt_phase1.md`, then `02_run_agent.py --run-id C0_r01 --snapshot 1`; repeat for phase 2.
 
 ## Design
@@ -62,24 +67,27 @@ Manual mode (any other agent, or a person): `01_prepare_workspace.py --condition
 * **References.** The release's GBM numbers (0.756 / 0.649 / 0.550) use peptide features only. Agents also see metadata, which is
   itself predictive, so `07_reference_baseline.py` scores a fixed pipeline on the agent-facing table (random / group / study
   held out). Excess AUPRC is measured against that baseline.
-* **Isolation.** The CLI runs with `--setting-sources ""`, `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`, no MCP servers, no slash commands
+* **Isolation.** The CLI runs with `--setting-sources ""`, `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`, `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`, no MCP servers, no slash commands
   and only Bash/Read/Write/Edit/Glob/Grep. Transcripts are scanned for reads of the study's own release files
   (`tx_escape_release_files`).
 
-## Verified
+## Verification
 
 * Exposure code reproduces the release's own S1 and S4 exposure numbers (max difference 0.00000) and classifies S1, S4 and S5
   correctly (`00_validate_setup.py`).
 * 32 tests pass: similarity vs a slow reference, hand-computed exposure cases, workspace sanitising, five mock agent strategies
   scored end to end, invalid-submission handling, a stand-in `claude` that checks the flags the runner sends, resumability,
   and the statistics on synthetic data with known effects.
-* One real trial through the real CLI (Claude Code 2.1.319, sonnet alias = claude-sonnet-5-5) completed both phases and scored.
+* A real trial through the real CLI (Claude Code 2.1.319, `sonnet` alias = claude-sonnet-5-5) completes both phases and scores.
 
-## Caveats you should state in the paper
+## Limitations
 
-* The study design is not a hypothesis-free guess: a smoke trial showed a current model can pick a grouped split on its own
-  in C0. Condition differences are only detectable if some conditions leak; run the pilot and look before committing.
-* Heuristic transcript flags are not ground truth; use the manual labels for the audit/self-correction variables.
-* The agent runs shell commands as you inside `runs/<run_id>/work/` and nothing stops a command from touching other files.
-* One dataset, one model family (add `--model` runs as a factor if you can), 5% exposure tolerance is a choice
-  (`EXPOSURE_TOL`, `STUDY_TOL`), and the release's own S5 only holds out each row's first reference.
+* A pilot trial showed that a current model can choose a grouped split on its own under the minimal prompt (C0). Differences
+  between conditions are detectable only if some conditions produce leaky splits, so the pilot is inspected before the main run.
+* Heuristic transcript flags are not ground truth; the audit and self-correction variables are coded manually.
+* The agent executes shell commands with the permissions of the invoking user inside `runs/<run_id>/work/`; the sandbox is a
+  working directory, not an operating-system isolation boundary. Run the harness on a machine without sensitive files in
+  reachable locations.
+* One dataset and one model family. Other models can be added with `--model` and analysed as a factor. The 5% exposure
+  tolerance is a design choice (`EXPOSURE_TOL`, `STUDY_TOL`), and the release's own S5 split holds out only each row's first
+  reference.

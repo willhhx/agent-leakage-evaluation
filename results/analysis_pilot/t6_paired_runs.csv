@@ -1,0 +1,16 @@
+run_id,condition,leaky_1,leaky_2,auprc_1,auprc_2,type_1,type_2,fixed,broke,d_auprc
+C0_r01,C0,True,True,0.7452912338385513,0.6472557487610342,peptide_dedup_only,study_held_out,False,False,-0.09803548507751714
+C0_r02,C0,True,True,0.7523478842462282,0.8225470393097318,peptide_dedup_only,similarity_aware,False,False,0.0701991550635036
+C0_r03,C0,True,True,0.6504184836255484,0.6504184836255484,study_held_out,study_held_out,False,False,0.0
+C0_r04,C0,True,True,0.7516765036007184,0.8213127433017114,peptide_dedup_only,similarity_aware,False,False,0.06963623970099309
+C0_r05,C0,True,True,0.7346651281612002,0.6713303957062827,peptide_dedup_only,similarity_aware,False,False,-0.0633347324549175
+C1_r01,C1,True,True,0.7787603430061314,0.834586776706402,peptide_dedup_only,similarity_aware,False,False,0.05582643370027063
+C1_r02,C1,True,True,0.7647985636861606,0.6916962452325844,peptide_dedup_only,study_held_out,False,False,-0.07310231845357618
+C1_r03,C1,True,True,0.8019179803165648,0.815253781415376,peptide_dedup_only,similarity_aware,False,False,0.013335801098811162
+C1_r04,C1,True,True,0.6764972460704938,0.6750625101507488,peptide_dedup_only,similarity_aware,False,False,-0.0014347359197449672
+C1_r05,C1,True,True,0.8853241376039892,0.8781468394247314,peptide_dedup_only,peptide_dedup_only,False,False,-0.007177298179257829
+C2_r01,C2,False,False,0.8039099585383156,0.8039099585383156,group_held_out,group_held_out,False,False,0.0
+C2_r02,C2,False,False,0.8093078611910954,0.8093078611910954,group_held_out,group_held_out,False,False,0.0
+C2_r03,C2,False,False,0.9136109649252068,0.8372924837854248,group_held_out,group_held_out,False,False,-0.07631848113978201
+C2_r04,C2,False,False,0.8094961248083292,0.8094961248083292,group_held_out,group_held_out,False,False,0.0
+C2_r05,C2,False,False,0.8149121192522133,0.8149121192522133,group_held_out,group_held_out,False,False,0.0
