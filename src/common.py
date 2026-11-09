@@ -17,7 +17,7 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RELEASE_ENV = "LCI_IEDB_RELEASE"
-# The release lives in the sibling repo "lci-iedb" inside "Python Intro".
+# Default: the LCI-IEDB repo cloned as a sibling folder "lci-iedb" (override with LCI_IEDB_RELEASE).
 DEFAULT_RELEASE = PROJECT_ROOT.parent / "lci-iedb" / "data" / "release" / "LCI-IEDB_v1.0"
 
 PRIMARY_FILE = "LCI-IEDB_v1.0_primary_P_vs_N2.csv.gz"

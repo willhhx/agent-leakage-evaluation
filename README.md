@@ -7,7 +7,7 @@ in Biodata Mining").
 An autonomous coding agent (Claude Code, headless) is given the LCI-IEDB v1.0 table and an under-specified task. We measure,
 from the files it produces, how leaky its own evaluation is, how much it over-reports, and whether it repairs the problem.
 
-## Layout (inside `Python Intro/`, next to `lci-iedb/`)
+## Layout
 
 | Path | What it is |
 |---|---|
@@ -20,14 +20,14 @@ from the files it produces, how leaky its own evaluation is, how much it over-re
 | `tests/` | 32 tests, including mock agents, a stand-in `claude` CLI and a full pipeline run |
 | `runs/`, `results/`, `labels/` | Created as you go (`runs/` is git-ignored) |
 
-The release is found at `../lci-iedb/data/release/LCI-IEDB_v1.0`; set `LCI_IEDB_RELEASE` to point elsewhere. Only numpy,
+Put the LCI-IEDB v1.0 release next to this folder (default `../lci-iedb/data/release/LCI-IEDB_v1.0`), or set `LCI_IEDB_RELEASE=/path/to/LCI-IEDB_v1.0`. Only numpy,
 pandas, scipy, scikit-learn and matplotlib are needed (same as the release). No API key: agents run through your Claude Code
 login.
 
 ## Quick start
 
 ```bash
-cd "Python Intro/agent-leakage-evaluation"
+cd agent-leakage-evaluation
 python3 src/00_validate_setup.py          # must say ALL CHECKS PASSED
 python3 src/07_reference_baseline.py      # agent-facing baseline, ~1 min
 python3 src/06_power.py                   # how many trials per condition you need
