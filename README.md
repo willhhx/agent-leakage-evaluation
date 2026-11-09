@@ -74,12 +74,3 @@ Manual mode (any other agent, or a person): `01_prepare_workspace.py --condition
   scored end to end, invalid-submission handling, a stand-in `claude` that checks the flags the runner sends, resumability,
   and the statistics on synthetic data with known effects.
 * One real trial through the real CLI (Claude Code 2.1.319, sonnet alias = claude-sonnet-5-5) completed both phases and scored.
-
-## Caveats you should state in the paper
-
-* The study design is not a hypothesis-free guess: a smoke trial showed a current model can pick a grouped split on its own
-  in C0. Condition differences are only detectable if some conditions leak; run the pilot and look before committing.
-* Heuristic transcript flags are not ground truth; use the manual labels for the audit/self-correction variables.
-* The agent runs shell commands as you inside `runs/<run_id>/work/` and nothing stops a command from touching other files.
-* One dataset, one model family (add `--model` runs as a factor if you can), 5% exposure tolerance is a choice
-  (`EXPOSURE_TOL`, `STUDY_TOL`), and the release's own S5 only holds out each row's first reference.
