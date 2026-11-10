@@ -73,7 +73,7 @@ Our contributions are (i) a reproducible harness that measures agent-chosen spli
 This is a controlled, blocked, seeded randomized evaluation of an AI system (seed 20261109), not a clinical study. Conditions were assigned in blocked random order. Hypotheses, tests and exclusions were fixed in \texttt{docs/rubric.md} before the main run. Applicable items of TRIPOD+AI and CONSORT-AI are followed where they transfer to a non-clinical experiment; Supplementary Table S1 gives the aim, design and setting in detail and maps the reporting items.
 
 \subsection*{Materials: dataset}
-The testbed is the primary peptide-versus-N2 benchmark of LCI-IEDB v1.0: 12,380 rows, 6,675 positives (prevalence 0.539), grouped into 5,432 leakage groups across all tiers. The release defines five reference splits: S1 antigen-group, S2 HLA, S3 organism, S4 random and S5 study-held-out. Reference gradient-boosting AUPRC from the release (peptide features) is 0.756 (S4), 0.649 (S1) and 0.550 (S5); chance equals prevalence, 0.539. Release integrity was checked against the previously reported values. \todo{Zenodo DOI for LCI-IEDB v1.0 and dataset citation}.
+The testbed is the primary peptide-versus-N2 benchmark of LCI-IEDB v1.0: 12,380 rows, 6,675 positives (prevalence 0.539), grouped into 5,432 leakage groups across all tiers. The release defines five reference splits: S1 antigen-group, S2 HLA, S3 organism, S4 random and S5 study-held-out. Reference gradient-boosting AUPRC from the release (peptide features) is 0.756 (S4), 0.649 (S1) and 0.550 (S5); chance equals prevalence, 0.539. Release integrity was checked against the previously reported values. The release is archived on Zenodo \cite{LCIIEDB}.
 
 \subsection*{Agent, sandbox and conditions}
 The agent was Claude Sonnet 5.5 (Anthropic), run headless through the Claude Code command-line interface with tools limited to shell, file read/write/edit and search, permission mode set to deny unlisted actions, no settings sources, no external tool servers, no slash commands, and project-memory features disabled. Each trial received a fresh sandbox containing the data (13 label-derived columns removed) and a task prompt with the row count substituted. The study agent is the object of the experiment; the use of an LLM is therefore documented here as required by the journal.
@@ -358,7 +358,7 @@ Not applicable. Only public, de-identified peptide data were used; no human part
 Not applicable.
 
 \subsection*{Availability of data and materials}
-The code, prompts, rubric, tests and analysis outputs generated during this study are available in the GitHub repository \cite{Repo}, and the version used for this article is archived on Zenodo \cite{Zenodo}. The raw agent transcripts and code snapshots (the \texttt{runs/} folder) are not part of the archive and are available from the corresponding author on reasonable request. The LCI-IEDB v1.0 benchmark analysed during this study is available at \todo{Zenodo DOI for LCI-IEDB v1.0}.
+The code, prompts, rubric, tests and analysis outputs generated during this study are available in the GitHub repository \cite{Repo}, and the version used for this article is archived on Zenodo \cite{Zenodo}. The raw agent transcripts and code snapshots (the \texttt{runs/} folder) are not part of the archive and are available from the corresponding author on reasonable request. The LCI-IEDB v1.0 benchmark analysed during this study is available at Zenodo, \url{https://doi.org/10.5281/zenodo.24095334} \cite{LCIIEDB}.
 
 \subsection*{Competing interests}
 The author declares no competing interests.
@@ -382,6 +382,7 @@ Not applicable.
 \bibitem{Reynisson2020} Reynisson B, Alvarez B, Paul S, Peters B, Nielsen M. NetMHCpan-4.1 and NetMHCIIpan-4.0: improved predictions of MHC antigen presentation by concurrent motif deconvolution and integration of MS MHC eluted ligand data. Nucleic Acids Res. 2020;48(W1):W449--54.
 \bibitem{Luo2025} Luo Z, Kasirzadeh A, Shah NB. The more you automate, the less you see: hidden pitfalls of AI scientist systems. arXiv. 2025;2509.08713.
 \bibitem{Atinafu2026} Atinafu Y, Cohen R. RewardHackingAgents: benchmarking evaluation integrity for LLM ML-engineering agents. arXiv. 2026;2603.11337.
+\bibitem{LCIIEDB} Hu H. LCI-IEDB: leakage-controlled benchmark derived from IEDB, version 1.0.0. Zenodo. 2026. https://doi.org/10.5281/zenodo.24095334.
 \bibitem{Zenodo} Hu H. agent-leakage-evaluation, version 1.0.0. Zenodo. 2026. https://doi.org/10.5281/zenodo.24095271.
 \bibitem{Repo} Hu H. agent-leakage-evaluation: code, prompts and analysis for the leakage evaluation of autonomous agents. GitHub. https://github.com/willhhx/agent-leakage-evaluation. Accessed 9 Nov 2026.
 \end{thebibliography}
