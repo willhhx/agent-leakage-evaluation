@@ -1,0 +1,5 @@
+condition,n_pairs,leaky_before,fixed_after_review,newly_leaky,share_of_leaky_fixed,mcnemar_exact_p,median_change_auprc,wilcoxon_p
+C0,10,10,0,0,0.0,1.0,-0.006270444024558064,0.375
+C1,10,10,0,0,0.0,1.0,0.007238008674546825,0.625
+C2,10,0,0,0,,1.0,0.0,0.3125
+all,30,20,0,0,0.0,1.0,0.0,0.41183950024590854

@@ -91,3 +91,7 @@ Manual mode (for any other agent, or a person): `01_prepare_workspace.py --condi
 * One dataset and one model family. Other models can be added with `--model` and analysed as a factor. The 5% exposure
   tolerance is a design choice (`EXPOSURE_TOL`, `STUDY_TOL`), and the release's own S5 split holds out only each row's first
   reference.
+
+## License
+
+Code is released under the MIT License (see `LICENSE`). The LCI-IEDB v1.0 data are distributed separately under their own terms.

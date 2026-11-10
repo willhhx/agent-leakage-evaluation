@@ -1,0 +1,88 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\title{Supplementary material\\[4pt]\large Do autonomous AI analysis agents detect and avoid data leakage? A controlled evaluation of split selection on a leakage-audited immunology benchmark}
+\author{Haoxi Hu}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Supplementary Table S1. Aim, design and setting}
+\begin{small}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.4cm}X@{}}
+\toprule
+Item & Description\\
+\midrule
+Aim & To measure how often an autonomous analysis agent produces a train--test split that shares leakage groups between training and held-out rows, how much this inflates its reported performance, and whether a generic warning, supplied leakage groups or a self-review question change it.\\[4pt]
+Design & Controlled, blocked, seeded randomized evaluation of an AI system with three parallel conditions (C0, C1, C2) and a two-phase repeated measure within each trial. Not a clinical study; no human participants.\\[4pt]
+Setting & Trials were run on the author's laptop (macOS) using the Claude Code command line (version 2.1.319) with model alias \texttt{sonnet}, resolved by the CLI to claude-sonnet-5-5. Each trial ran in its own working directory under \texttt{runs/<run\_id>/work/}. The main run was performed on 9 November 2026.\\[4pt]
+Unit of analysis & One trial (one agent session with two phases); 10 trials per condition, 30 in total. Pilot: 5 per condition, excluded from inference.\\[4pt]
+Randomization & Conditions assigned in blocked random order with seed 20261109 (\texttt{schedule.csv}). No stratification. Allocation was fixed before any trial ran.\\[4pt]
+Blinding & None for the agent or the analyst: the prompt and the run identifier reveal the condition. Outcomes were computed by scripts from the submitted files and do not depend on analyst judgement.\\[4pt]
+Materials & LCI-IEDB v1.0 primary peptide-versus-N2 table (12,380 rows, 6,675 positives, 5,432 leakage groups) with 13 label-derived columns removed; the term ``leakage'' scrubbed from the data dictionary; in C2 additionally \texttt{leakage\_groups.csv.gz} and a README.\\[4pt]
+Interventions & C0: task prompt. C1: task prompt plus one sentence asking for a generalization-faithful evaluation and avoidance of data leakage. C2: task prompt plus a pointer to the supplied leakage groups. Phase 2, all conditions: a neutral self-review question in the same session.\\[4pt]
+Agent configuration & Tools limited to shell, file read/write/edit and search; permission mode that denies unlisted actions; no settings sources, external tool servers or slash commands; project-memory features disabled; maximum 60 turns per phase.\\[4pt]
+Outcomes & Primary: group-leaky split in phase 1 (more than 5\% of held-out rows share a leakage group with training). Secondary: exposure vectors, split type, recomputed AUPRC and AUROC, reported versus recomputed metrics, exposed versus unexposed AUPRC, change after self-review, cost and turns.\\[4pt]
+Sample size & Chosen from exact Fisher power for a pilot-like effect; 10 per condition (see Methods). Not powered to separate C0 from C1.\\[4pt]
+Statistical analysis & As specified in Methods and \texttt{docs/rubric.md}, fixed before the main run.\\[4pt]
+Deviations from plan & (i) An agent-facing baseline was added after the pilot showed the release peptide-only reference was not a valid leakage-free comparator for metadata-using agents. (ii) Hypotheses in \texttt{docs/rubric.md} were restated, before any pilot analysis, to match the manuscript. (iii) The change in leakage-group exposure after self-review was computed after the main run from the scored files, using a test named in the rubric, and is reported as secondary. (iv) Main-run audit labels were assigned by a language model, not by two human coders as first planned.\\[4pt]
+Harms and safety & Agents execute shell commands with the permissions of the invoking user inside a working directory; no run read the study's own release files (0 of 60 trial-phases flagged).\\[4pt]
+Availability & Code, prompts, rubric, tests and analysis outputs: GitHub repository willhhx/agent-leakage-evaluation (MIT License).\\
+\bottomrule
+\end{tabularx}
+\end{small}
+
+\bigskip
+\section*{Supplementary Table S2. Reporting-guideline mapping}
+Items are mapped by topic, not by item number. TRIPOD+AI and CONSORT-AI concern clinical prediction models and trials; items with no counterpart in a non-clinical experiment are marked not applicable.
+
+\begin{small}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{4.4cm}X@{}}
+\toprule
+Topic & Where reported & Note\\
+\midrule
+Title identifies design & Title & ``A controlled evaluation''\\
+Structured abstract & Abstract & Background, Results, Conclusions (journal format)\\
+Background and objectives & Background & Hypotheses H1--H3 stated\\
+Study design and setting & Methods; Table S1 & \\
+Data source and description & Methods: Materials & LCI-IEDB v1.0, columns removed\\
+Intervention and comparator, with details to allow replication & Methods: Agent, sandbox and conditions; Table 1 & Prompts in repository\\
+Outcomes defined & Methods: Outcome measurement & Primary and secondary\\
+Sample size & Methods: Sample size & Power calculation given\\
+Allocation / randomization & Table S1 & Blocked, seeded\\
+Blinding & Table S1 & Not applicable to the agent; outcomes automated\\
+Statistical methods & Methods: Statistical analysis & \\
+Participant flow & Results: Run population; Fig. 2; Table 2 & No exclusions\\
+Results with effect sizes and intervals & Results; Tables 4--6 & Wilson, bootstrap intervals, Cliff's delta\\
+Harms / unintended effects & Table S1 & Sandbox is a working directory\\
+Limitations & Discussion: Limitations & \\
+Ethics, consent & Declarations & Not applicable\\
+Availability of data, code, protocol & Declarations; Table S1 & Zenodo DOI to be added at release\\
+Use of AI in the work & Methods: Agent; Table S1 & The studied agent; language-model coding of labels\\
+Model performance and calibration & Not applicable & No predictive model is the object of study\\
+Fairness across subgroups & Not applicable & \\
+\bottomrule
+\end{tabularx}
+\end{small}
+
+\bigskip
+\section*{Supplementary Table S3. Audit coding rubric}
+\begin{small}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{3.2cm}X@{}}
+\toprule
+Variable & Definition\\
+\midrule
+audit\_performed & 1 if the agent ran an explicit check on the relationship between training and held-out rows (shared or near-identical peptides, shared protein, antigen or study, similarity to training rows, group overlap) and looked at the result; 0 otherwise. Importing a group-aware splitter, constructing groups, or stating that leakage is possible does not count. A check run only in phase 2 counts for phase 2.\\[3pt]
+audit\_type & none, identical, similarity, group, study or other (semicolon separated).\\[3pt]
+self\_corrected & Phase 2 only. 1 if leakage-group exposure fell relative to phase 1 after the review; 0 if not; NA if phase 1 was already group-controlled.\\
+\bottomrule
+\end{tabularx}
+\end{small}
+\end{document}

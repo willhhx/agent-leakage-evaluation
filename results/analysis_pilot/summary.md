@@ -32,7 +32,7 @@ Agent-facing baseline (same table the agents saw): random 0.960; leakage-group 0
 |---|---|---|---|---|---|
 | C0 | 5 | 5 | 1.000 | 0.566 | 1.000 |
 | C1 | 5 | 5 | 1.000 | 0.566 | 1.000 |
-| C2 | 0 | 5 | 0.000 | -0.000 | 0.434 |
+| C2 | 0 | 5 | 0.000 | 0.000 | 0.434 |
 
 Permutation chi-square across the three conditions: chi2 = 15.00, p = 0.0013 (20000 permutations).
 
@@ -90,7 +90,7 @@ Pairwise Mann-Whitney (Holm), Cliff's delta:
 |---|---|---|---|---|---|
 | C0 | 5 | 5 | 1.000 | 0.566 | 1.000 |
 | C1 | 5 | 5 | 1.000 | 0.566 | 1.000 |
-| C2 | 0 | 5 | 0.000 | -0.000 | 0.434 |
+| C2 | 0 | 5 | 0.000 | 0.000 | 0.434 |
 
 Permutation chi-square across the three conditions: chi2 = 15.00, p = 0.0013 (20000 permutations).
 
@@ -161,6 +161,12 @@ Pairwise Mann-Whitney (Holm), Cliff's delta:
 | 2 | C0 | 0.200 | 0.200 | 0.400 | 0.000 | 0.000 | 0.000 | 0.000 | 0.600 |
 | 2 | C1 | 0.200 | 0.200 | 1.000 | 0.000 | 0.600 | 0.000 | 0.000 | 0.600 |
 | 2 | C2 | 1.000 | 0.200 | 0.000 | 0.800 | 0.600 | 0.000 | 0.000 | 0.600 |
+
+
+Manual label file 1: manual_will.csv (30 rows)
+
+
+Manual `audit_performed` vs automatic regex flag: kappa = -0.07 on 30 rows.
 
 ## Cost and effort (as reported by the CLI)
 

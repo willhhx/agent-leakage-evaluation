@@ -1,0 +1,61 @@
+run_id,condition,rep,phase,split_type,tx_mentions_leakage,tx_audit_similarity,tx_audit_overlap,tx_used_provided_groups,tx_code_grouped_split,audit_performed,audit_type,self_corrected,notes
+C0_r01,C0,1,1,peptide_dedup_only,True,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C0_r01,C0,1,2,peptide_dedup_only,False,False,True,False,False,1,identical,1,Checked how rows were linked into groups and found the same peptide in two groups; rebuilt groups.
+C0_r02,C0,2,1,study_held_out,True,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C0_r02,C0,2,2,study_held_out,False,False,False,False,False,0,none,1,Found the grouping gap (parent protein) by reviewing the code; no overlap check was run.
+C0_r03,C0,3,1,study_held_out,True,False,False,False,True,1,identical,NA,Printed peptide overlap between train and test per fold.
+C0_r03,C0,3,2,study_held_out,True,False,True,False,False,1,identical,1,Re-ran the per-fold peptide-overlap print and expanded groups beyond first PMID.
+C0_r04,C0,4,1,peptide_dedup_only,False,False,False,False,True,0,none,NA,No explicit train-test check seen.
+C0_r04,C0,4,2,similarity_aware,True,False,False,False,False,1,identical;group;similarity,1,"chk.py counted peptides, parents and 8-mers spanning folds."
+C0_r05,C0,5,1,study_held_out,False,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C0_r05,C0,5,2,study_held_out,True,True,True,False,False,1,similarity,1,Measured how many peptides share an 8-mer and linked them.
+C0_r06,C0,6,1,study_held_out,False,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C0_r06,C0,6,2,study_held_out,False,False,False,False,True,0,none,1,"Review addressed shortcut features, not the split; no overlap check."
+C0_r07,C0,7,1,study_held_out,False,False,True,False,False,0,none,NA,No explicit train-test check seen.
+C0_r07,C0,7,2,study_held_out,False,False,True,False,False,0,none,1,Stricter grouping added from code review; no overlap check seen.
+C0_r08,C0,8,1,study_held_out,False,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C0_r08,C0,8,2,study_held_out,True,False,True,False,False,0,none,1,Review addressed a start-position feature and grouping; no overlap check seen.
+C0_r09,C0,9,1,study_held_out,False,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C0_r09,C0,9,2,study_held_out,False,False,True,False,False,1,similarity,1,Analysed 8-mer and parent-protein sharing before regrouping.
+C0_r10,C0,10,1,peptide_dedup_only,False,False,True,False,True,1,identical,NA,Code checks peptides shared across folds.
+C0_r10,C0,10,2,similarity_aware,False,False,False,False,False,1,identical;group,1,"Counted peptides and parents spanning folds, then regrouped."
+C1_r01,C1,1,1,peptide_dedup_only,False,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C1_r01,C1,1,2,similarity_aware,True,True,False,False,False,0,none,1,Added parent protein and 8-mer links from review; no explicit check seen.
+C1_r02,C1,2,1,peptide_dedup_only,True,False,False,False,True,0,none,NA,No explicit train-test check seen.
+C1_r02,C1,2,2,similarity_aware,False,True,True,False,False,0,none,1,Rebuilt groups after noting parent-protein overlap; no explicit check seen.
+C1_r03,C1,3,1,peptide_dedup_only,True,False,False,False,True,0,none,NA,No explicit train-test check seen.
+C1_r03,C1,3,2,study_held_out,True,False,True,False,False,0,none,0,Rebuilt groups by connected components; no train-test overlap check seen (uncertain).
+C1_r04,C1,4,1,peptide_dedup_only,False,False,False,False,True,0,none,NA,No explicit train-test check seen.
+C1_r04,C1,4,2,similarity_aware,True,False,False,False,False,1,similarity;identical,1,Checked peptides and overlapping peptides across folds.
+C1_r05,C1,5,1,study_held_out,False,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C1_r05,C1,5,2,study_held_out,False,False,True,False,False,0,none,1,Added parent protein linkage after review; no explicit check seen.
+C1_r06,C1,6,1,study_held_out,False,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C1_r06,C1,6,2,study_held_out,False,False,True,False,False,0,none,1,Added parent protein linkage after review; no explicit check seen.
+C1_r07,C1,7,1,peptide_dedup_only,True,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C1_r07,C1,7,2,similarity_aware,True,False,True,False,False,0,none,1,Rebuilt groups with 8-mer links; no explicit check seen (uncertain).
+C1_r08,C1,8,1,peptide_dedup_only,True,False,False,False,True,0,none,NA,No explicit train-test check seen.
+C1_r08,C1,8,2,peptide_dedup_only,True,False,False,False,False,1,similarity,1,cvgroups.py computed group structure under alternative linkage rules (borderline).
+C1_r09,C1,9,1,peptide_dedup_only,True,False,True,False,True,1,identical,NA,Prints peptides spanning folds.
+C1_r09,C1,9,2,study_held_out,True,False,True,False,True,1,identical;group,1,Printed peptides and parents spanning folds.
+C1_r10,C1,10,1,peptide_dedup_only,False,False,True,False,True,0,none,NA,No explicit train-test check seen.
+C1_r10,C1,10,2,similarity_aware,True,False,True,False,True,0,none,1,Built overlap-aware groups; group sizes inspected but no train-test check (borderline).
+C2_r01,C2,1,1,group_held_out,True,False,False,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r01,C2,1,2,group_held_out,True,False,False,True,False,1,group;study,NA,"check.py counted group, key and PMID overlap across folds; found nothing to change."
+C2_r02,C2,2,1,group_held_out,True,True,False,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r02,C2,2,2,group_held_out,True,False,False,True,False,1,group,NA,Added an assertion that each group sits in one fold; main finding was a feature leak.
+C2_r03,C2,3,1,group_held_out,True,True,True,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r03,C2,3,2,group_held_out,True,False,False,True,True,0,none,NA,"Review addressed leaking columns, not the split."
+C2_r04,C2,4,1,group_held_out,True,True,False,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r04,C2,4,2,group_held_out,False,True,False,True,True,0,none,NA,"Review addressed start-position features, not the split."
+C2_r05,C2,5,1,group_held_out,True,False,True,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r05,C2,5,2,group_held_out,True,True,False,True,False,1,group;similarity;study,NA,"check.py tested group, key and near-duplicate overlap across folds; no change."
+C2_r06,C2,6,1,group_held_out,True,False,False,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r06,C2,6,2,group_held_out,False,False,False,True,False,1,study,NA,"Computed publication overlap across folds (77% of rows); reported, no change."
+C2_r07,C2,7,1,group_held_out,True,False,True,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r07,C2,7,2,group_held_out,True,False,False,False,False,1,identical,NA,Checked peptide overlap across folds; found nothing to change.
+C2_r08,C2,8,1,group_held_out,False,False,False,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r08,C2,8,2,group_held_out,True,False,False,True,True,1,group;similarity;study,NA,"chk.py tested key, similar-pair and PMID overlap across folds; added links."
+C2_r09,C2,9,1,group_held_out,True,False,False,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r09,C2,9,2,group_held_out,True,False,False,True,False,1,group,NA,"Examined columns against supplied groups, then removed a feature (uncertain)."
+C2_r10,C2,10,1,group_held_out,True,False,False,True,True,0,none,NA,Used the supplied groups; no independent check.
+C2_r10,C2,10,2,group_held_out,False,False,False,True,True,1,identical;similarity;study,NA,check.py and a PMID-group check across folds; no change.

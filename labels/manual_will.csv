@@ -1,0 +1,31 @@
+run_id,condition,rep,phase,split_type,tx_mentions_leakage,tx_audit_similarity,tx_audit_overlap,tx_used_provided_groups,tx_code_grouped_split,audit_performed,audit_type,self_corrected,notes
+C0_r01,C0,1,1,peptide_dedup_only,False,False,True,False,True,0,none,NA,"Used protein-based grouping to avoid direct overlap, but I did not find any explicit check comparing training and test sets."
+C0_r01,C0,1,2,study_held_out,True,False,True,False,False,1,study,1,Agent noticed that publications were spread across folds and rebuilt the split using shared peptides and PMIDs.
+C0_r02,C0,2,1,peptide_dedup_only,False,False,False,False,True,0,none,NA,"Grouped by protein and peptide identity, but no separate leakage audit was documented."
+C0_r02,C0,2,2,similarity_aware,False,False,False,False,False,1,similarity,1,"After review, the grouping was expanded to account for shared 8-mers between peptides."
+C0_r03,C0,3,1,study_held_out,False,False,False,False,True,0,none,NA,"Rows were grouped by peptide and reference ID, but I did not see any explicit overlap assessment."
+C0_r03,C0,3,2,study_held_out,False,False,False,False,False,1,study,NA,Agent revisited the split structure and confirmed that peptides and references remained within groups.
+C0_r04,C0,4,1,peptide_dedup_only,True,False,True,False,True,0,none,NA,"Protein-based grouping was used, but I did not see evidence of a train-test leakage check."
+C0_r04,C0,4,2,similarity_aware,False,False,False,False,False,1,similarity,1,Review identified potential overlap through shared 8-mers and updated the grouping accordingly.
+C0_r05,C0,5,1,peptide_dedup_only,False,False,True,False,True,0,none,NA,"Exact peptide grouping was used, but no additional leakage investigation was performed."
+C0_r05,C0,5,2,similarity_aware,False,True,True,False,False,1,similarity,1,Agent reviewed possible overlap among related peptides and rebuilt groups using protein and 8-mer links.
+C1_r01,C1,1,1,peptide_dedup_only,True,False,True,False,True,0,none,NA,"Parent-protein grouping prevented direct overlap, but there was no explicit audit of remaining leakage risks."
+C1_r01,C1,1,2,similarity_aware,False,True,True,False,True,1,similarity,1,Near-duplicate peptides were identified as a concern and the grouping strategy was strengthened.
+C1_r02,C1,2,1,peptide_dedup_only,True,False,False,False,True,0,none,NA,"Protein and peptide grouping were used from the start, but no separate audit was recorded."
+C1_r02,C1,2,2,study_held_out,True,False,True,False,False,1,study,1,Agent explicitly explored publication-level leakage and switched to a stricter evaluation split.
+C1_r03,C1,3,1,peptide_dedup_only,True,False,True,False,True,0,none,NA,"Antigen-family and peptide grouping were used, but no explicit leakage check was reported."
+C1_r03,C1,3,2,similarity_aware,False,False,True,False,False,1,similarity,1,"Review found that overlapping peptides could cross folds, leading to a revised grouping strategy."
+C1_r04,C1,4,1,peptide_dedup_only,False,False,True,False,True,0,none,NA,"Parent-protein grouping was applied, but I did not find evidence of a separate leakage assessment."
+C1_r04,C1,4,2,similarity_aware,False,False,True,False,True,1,similarity,1,Agent revised the split after identifying overlap through shared proteins and 8-mer sequences.
+C1_r05,C1,5,1,peptide_dedup_only,False,False,True,False,True,0,none,NA,Grouped by peptide identity only; no audit of related or overlapping peptides was documented.
+C1_r05,C1,5,2,peptide_dedup_only,False,False,True,False,True,1,similarity,1,Agent concluded that exact-peptide grouping was insufficient and rebuilt groups using shared 8-mers.
+C2_r01,C2,1,1,group_held_out,False,False,False,True,True,0,none,NA,"Used the provided leakage groups as intended, but did not independently evaluate overlap."
+C2_r01,C2,1,2,group_held_out,True,True,False,True,True,1,similarity,NA,Agent performed additional similarity checks across folds and reviewed publication-linked structure.
+C2_r02,C2,2,1,group_held_out,True,False,False,True,True,0,none,NA,Used the provided leakage groups for evaluation without an additional audit.
+C2_r02,C2,2,2,group_held_out,True,False,False,True,False,1,similarity,NA,Agent verified group boundaries and checked that no substantial cross-fold sharing remained.
+C2_r03,C2,3,1,group_held_out,True,False,True,True,True,0,none,NA,Followed the provided grouping scheme but did not run any independent leakage assessment.
+C2_r03,C2,3,2,group_held_out,True,False,False,True,True,1,similarity,NA,"Agent audited the split, checked publication connectivity, and examined near-neighbor peptide overlap."
+C2_r04,C2,4,1,group_held_out,True,False,True,True,True,0,none,NA,Used the supplied leakage groups directly; I did not find evidence of a separate audit.
+C2_r04,C2,4,2,group_held_out,True,False,False,False,True,1,similarity,NA,Agent reviewed the fold assignments and confirmed that key grouping constraints were respected.
+C2_r05,C2,5,1,group_held_out,False,False,False,True,True,0,none,NA,Relied on the provided groups for evaluation and did not perform a separate leakage review.
+C2_r05,C2,5,2,group_held_out,True,False,False,True,False,1,similarity,NA,Agent checked fold integrity and searched for highly similar peptides crossing fold boundaries.

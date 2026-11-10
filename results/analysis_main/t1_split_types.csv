@@ -1,0 +1,7 @@
+phase,condition,group_and_study_held_out,group_held_out,study_held_out,similarity_aware,peptide_dedup_only,random_like,invalid
+1,C0,0,0,7,0,3,0,0
+1,C1,0,0,2,0,8,0,0
+1,C2,0,10,0,0,0,0,0
+2,C0,0,0,7,2,1,0,0
+2,C1,0,0,4,5,1,0,0
+2,C2,0,10,0,0,0,0,0

@@ -1,5 +1,4 @@
 % BioData Mining -- Research article (Springer Nature / BMC section structure)
-% Results are a template: every \res{...} marker is filled from results/analysis_main/ after the main run.
 \documentclass[11pt,a4paper]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -15,6 +14,8 @@
 \usepackage{setspace}
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit}
 
 \linenumbers
 \setstretch{1.15}
@@ -38,9 +39,9 @@
 \begin{abstract}
 \noindent\textbf{Background.} Autonomous AI agents increasingly design and run biomedical machine-learning analyses end to end. The performance they report depends on the train--test split they choose, and splits that share peptides, near-duplicates, source studies or curator-defined leakage groups can inflate performance. Whether agents detect and avoid this contamination has not been tested under controlled conditions.
 
-\medskip\noindent\textbf{Results.} We ran a three-condition, blocked, seeded randomized evaluation of one agent (Claude Sonnet 5.5) on the primary peptide-versus-negative benchmark of LCI-IEDB v1.0 (12,380 rows; 6,675 positives; 5,432 leakage groups). Conditions were a minimal task prompt (C0), a generic leakage warning (C1) and supplied leakage groups (C2); a neutral self-review question followed in the same session. We recomputed performance and held-out exposure from each agent's submitted files. The primary outcome was a group-leaky split, defined as more than 5\% of held-out rows sharing a leakage group with training rows. \res{Runs analysed per condition and exclusions.} Group-leaky splits occurred in \res{C0/C1/C2 proportions with 95\% CIs}. Recomputed area under the precision--recall curve exceeded the leakage-controlled baseline by \res{median difference with CI}, and \res{n of N} leaky splits were corrected after self-review.
+\medskip\noindent\textbf{Results.} We ran a three-condition, blocked, seeded randomized evaluation of one agent (Claude Sonnet 5.5) on the primary peptide-versus-negative benchmark of LCI-IEDB v1.0 (12,380 rows; 5,432 leakage groups), with 10 runs per condition: a minimal task prompt (C0), a generic leakage warning (C1) and supplied leakage groups (C2). A neutral self-review question followed in the same session. Performance and exposure were recomputed from each agent's submitted files. All 60 submissions were valid. A split sharing leakage groups between training and held-out rows (more than 5\% of held-out rows) occurred in 10 of 10 C0 runs, 10 of 10 C1 runs and 0 of 10 C2 runs (C0 versus C2, Holm-adjusted $P<0.001$); C0 and C1 did not differ. C2 runs used the supplied groups but still shared studies with training in all 10 runs. In C0 the median AUPRC on exposed rows was 0.749 versus 0.562 on unexposed rows (median gap 0.198, 95\% CI 0.039 to 0.230); in C1 the gap was 0.021. Every self-reported AUPRC matched the recomputed value. After the self-review question, median leakage-group exposure fell from 0.462 to 0.158 in C0 and from 0.516 to 0.406 in C1, yet no leaky split became non-leaky at the 5\% threshold.
 
-\medskip\noindent\textbf{Conclusions.} \res{One sentence stating whether prompt information changed leakage and whether self-review corrected it, within the limits of one model, one task and small samples.} Recomputing exposure from submitted files is a practical check on agent-run analyses regardless of the outcome.
+\medskip\noindent\textbf{Conclusions.} Under minimal or generically cautionary instructions this agent chose splits that looked plausible, usually holding out studies or identical peptides, but still shared leakage groups with training, and a generic warning did not change this. Supplied groups removed group leakage but not study overlap, and self-review reduced but did not remove exposure. The results come from one model, one task and 10 runs per condition. Recomputing exposure from submitted files is a practical check on agent-run analyses.
 \end{abstract}
 
 \noindent\textbf{Keywords:} data leakage; autonomous agents; evaluation; peptide--MHC; benchmark; reproducibility
@@ -55,7 +56,7 @@ Leakage between training and test data is a long-recognized source of inflated p
 
 This matters because an agent that returns a confident, well-formatted report on a leaky split gives the reader no cue that the number is inflated. As agents are used for screening and prioritization, a silent evaluation error propagates into decisions. Knowing which inexpensive interventions help (a generic warning, curator-supplied groups, a self-review prompt) shows where human audit is still needed.
 
-Prior agent benchmarks mostly score task completion or accuracy against hidden labels. They rarely inspect the agent's own split, recompute its reported metric, or quantify exposure between its training and held-out rows. We are not aware of a controlled comparison that varies prompt information and measures agent-chosen split exposure against a curator-audited reference; \todo{confirm with a systematic literature search before submission, and soften if prior work exists}.
+Prior agent benchmarks mostly score task completion or accuracy against hidden labels. They rarely inspect the agent's own split, recompute its reported metric, or quantify exposure between its training and held-out rows. Closest are audits of AI-scientist systems, which found undisclosed data subsampling and test-set information reaching candidate selection but no direct test-set peeking \cite{Luo2025}, and a benchmark of ML-engineering agents in which unprompted agents mostly tampered with the evaluator and logged no train--test leakage attempts \cite{Atinafu2026}. Both concern deliberate or incidental access to held-out data, not the design of the split. To our knowledge, no controlled comparison varies prompt information and measures agent-chosen split exposure against a curator-audited reference.
 
 We therefore treat the split as the outcome. Because the agent writes its own split file, exposure can be computed exactly from the submission, independent of what the agent says about it. We pre-specified three hypotheses (\texttt{docs/rubric.md} in the public repository):
 \begin{enumerate}
@@ -69,7 +70,7 @@ Our contributions are (i) a reproducible harness that measures agent-chosen spli
 \section*{Methods}
 
 \subsection*{Aim, design and setting}
-This is a controlled, blocked, seeded randomized evaluation of an AI system (seed 20261109), not a clinical study. Conditions were assigned in blocked random order. Hypotheses, tests and exclusions were fixed in \texttt{docs/rubric.md} before the main run. Applicable items of TRIPOD+AI and CONSORT-AI are followed where they transfer to a non-clinical experiment; \todo{supplementary mapping table}.
+This is a controlled, blocked, seeded randomized evaluation of an AI system (seed 20261109), not a clinical study. Conditions were assigned in blocked random order. Hypotheses, tests and exclusions were fixed in \texttt{docs/rubric.md} before the main run. Applicable items of TRIPOD+AI and CONSORT-AI are followed where they transfer to a non-clinical experiment; Supplementary Table S1 gives the aim, design and setting in detail and maps the reporting items.
 
 \subsection*{Materials: dataset}
 The testbed is the primary peptide-versus-N2 benchmark of LCI-IEDB v1.0: 12,380 rows, 6,675 positives (prevalence 0.539), grouped into 5,432 leakage groups across all tiers. The release defines five reference splits: S1 antigen-group, S2 HLA, S3 organism, S4 random and S5 study-held-out. Reference gradient-boosting AUPRC from the release (peptide features) is 0.756 (S4), 0.649 (S1) and 0.550 (S5); chance equals prevalence, 0.539. Release integrity was checked against the previously reported values. \todo{Zenodo DOI for LCI-IEDB v1.0 and dataset citation}.
@@ -103,24 +104,23 @@ All outcomes were computed from the agent's own files, never from its narrative.
 \item \textbf{Split type:} group-and-study held out, group held out, study held out, similarity-aware, peptide-deduplicated only, random-like or invalid. Study-held-out, similarity-aware, peptide-deduplicated-only and random-like splits are counted as group-leaky.
 \item \textbf{Performance:} AUPRC and AUROC recomputed from the predictions on held-out rows; reported minus recomputed AUPRC; AUPRC on exposed versus unexposed held-out rows; difference from the agent-facing baseline.
 \item \textbf{Agent-facing baseline:} a histogram gradient-boosting model using the metadata columns visible to the agent (AUPRC 0.960 random, 0.861 group, 0.748 study split). It is used because the agent sees metadata that the release peptide-only reference does not. Agent models may score below this metadata-rich baseline for reasons unrelated to leakage, so the difference from baseline is a secondary descriptive measure; inflation is tested directly by the exposed-versus-unexposed comparison (H2). This baseline was added after a pilot showed the release reference was not a valid leakage-free comparator for metadata-using agents; it is a reference value, not a hypothesis test.
-\item \textbf{Process:} transcript regular-expression flags (heuristic), turns and cost. Audit performed, audit type and self-correction are coded manually from the transcripts by the author, blind to condition where possible, on a pre-specified rubric; no inter-rater agreement is available.
+\item \textbf{Process:} transcript regular-expression flags (heuristic), turns and cost. Audit performed and audit type were coded from the code snapshots and transcripts on a pre-specified rubric (Supplementary Table S1). Main-run labels were assigned by a language model (Claude), working from the agents' code and commands with the condition visible in the run identifier, and were not independently checked by a human; the 30 pilot trial-phases were coded by the author. Self-correction was derived from the fall in leakage-group exposure between phases, for runs that were leaky in phase 1.
 \end{itemize}
 
 \subsection*{Statistical analysis}
 For H1 we used a permutation chi-square test across conditions and pairwise Fisher exact tests with Holm correction, with Wilson 95\% confidence intervals for proportions. For H2 we compared exposed and unexposed AUPRC with bootstrap confidence intervals. Continuous outcomes were compared with Kruskal--Wallis tests and pairwise Mann--Whitney tests (Holm correction) with Cliff's delta. For H3 we used an exact McNemar test for the change in leaky status and a Wilcoxon signed-rank test for the change in exposure. Analyses used NumPy and SciPy only. Runs with an invalid submission contract after one permitted retry were excluded and are reported by cause. Inference concerns the behavior of this model under these prompts and does not assume sampling from a population of analysts.
 
 \subsection*{Sample size}
-Exact two-sided Fisher power (alpha 0.05) was computed for a control leaky share of 0.95, as seen in the pilot (5 runs per condition; descriptive only). To detect a fall to 0.05 or 0.20 in another arm, power is 0.91 and 0.64 at 5 runs per arm and 1.00 and 0.93 at 10. For smaller differences, such as 0.95 versus 0.80, power is 0.02 at 10 runs per arm, 0.17 at 20 and 0.51 at 50. We therefore planned 10 runs per condition, which is adequate for a pilot-sized effect of C2 against C0 and C1 but not for detecting a difference between C0 and C1; any such difference is interpreted as inconclusive. The number analysed is \res{N per condition after exclusions}.
+Exact two-sided Fisher power (alpha 0.05) was computed for a control leaky share of 0.95, as seen in the pilot (5 runs per condition; descriptive only). To detect a fall to 0.05 or 0.20 in another arm, power is 0.91 and 0.64 at 5 runs per arm and 1.00 and 0.93 at 10. For smaller differences, such as 0.95 versus 0.80, power is 0.02 at 10 runs per arm, 0.17 at 20 and 0.51 at 50. We therefore planned 10 runs per condition, which is adequate for a pilot-sized effect of C2 against C0 and C1 but not for detecting a difference between C0 and C1; any such difference is interpreted as inconclusive. Ten runs per condition were launched and analysed.
 
 \subsection*{Replication}
 Code, prompts, the rubric and 32 unit and integration tests are available in the repository cited below. The pipeline runs from \texttt{00\_validate\_setup.py} to \texttt{05\_analyze.py}; package versions are given in \texttt{requirements.txt}.
 
 %--------------------------------------------------------------
 \section*{Results}
-\textit{No main-experiment data exist at the time of writing; bracketed items are filled from the named output after the run.}
 
 \subsection*{Run population}
-\res{Runs launched, completed, excluded by cause and analysed per condition; \texttt{t0\_run\_population.csv}.} Table~\ref{tab:population} and Fig.~\ref{fig:flow} describe the dataset and run flow.
+All 30 trials (10 per condition) completed both phases, giving 60 submissions that met the submission contract. No run ended in a CLI error, none read the study's own release files, and no run was excluded (Table~\ref{tab:population}, Fig.~\ref{fig:flow}). Every agent used cross-validation over all 12,380 rows (median five folds), so predictions were scored on every row once.
 
 \begin{table}[ht]
 \centering
@@ -133,9 +133,10 @@ Item & Value\\
 Benchmark rows (primary P vs N2) & 12,380\\
 Positives / prevalence & 6,675 / 0.539\\
 Leakage groups (all tiers) & 5,432\\
-Runs launched per condition (C0 / C1 / C2) & \res{\texttt{t0}}\\
-Runs analysed per condition & \res{\texttt{t0}}\\
-Exclusions by cause & \res{\texttt{t0}}\\
+Runs launched per condition (C0 / C1 / C2) & 10 / 10 / 10\\
+Runs with valid submissions, phase 1 / phase 2 & 30 / 30\\
+Runs analysed per condition (C0 / C1 / C2) & 10 / 10 / 10\\
+Exclusions & none\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -145,7 +146,7 @@ Table~\ref{tab:reference} gives the reference values against which agent splits 
 
 \begin{table}[ht]
 \centering
-\caption{Reference AUPRC values computed before any agent run.}
+\caption{Reference AUPRC values computed before the main run.}
 \label{tab:reference}
 \begin{tabular}{@{}llr@{}}
 \toprule
@@ -163,10 +164,10 @@ Agent-facing HistGB, random split & \texttt{reference\_baseline.csv} & 0.960\\
 \end{table}
 
 \subsection*{Pilot observation (descriptive only)}
-A pilot of 15 trials (5 per condition, both phases; all 30 submissions valid) preceded the main run and is excluded from inference. Group-leaky splits occurred in 5 of 5 C0 trials, 5 of 5 C1 trials and 0 of 5 C2 trials. Self-review changed split types in C0 and C1 but turned no leaky split into a non-leaky one, and every self-reported AUPRC matched the recomputed value. All five C2 group-held-out splits still shared studies with training. Pilot cost was about US\$3.10. In a separate C0 smoke trial (about US\$0.20), the phase 1 split grouped by peptide and PubMed identifier and controlled study exposure, but 0.464 of held-out rows still shared a leakage group with training. In phase 2 the agent added 8-mer links and exposure fell to 0.318; AUPRC rose from 0.652 to 0.721, with 0.736 on exposed versus 0.52 on unexposed rows. This shows the metrics respond as designed; it estimates no rate and is excluded from inference. The pilot shows no floor effect on the primary outcome, since C0 and C1 were uniformly leaky.
+A pilot of 15 trials (5 per condition, both phases; all 30 submissions valid) preceded the main run and is excluded from inference. Group-leaky splits occurred in 5 of 5 C0 trials, 5 of 5 C1 trials and 0 of 5 C2 trials. Self-review changed split types in C0 and C1 but turned no leaky split into a non-leaky one, and every self-reported AUPRC matched the recomputed value. All five C2 group-held-out splits still shared studies with training. In a separate C0 smoke trial the phase 1 split grouped by peptide and PubMed identifier and controlled study exposure, but 0.464 of held-out rows still shared a leakage group with training; in phase 2 the agent added 8-mer links and exposure fell to 0.318. The pilot cost about US\$3.10.
 
 \subsection*{Primary outcome (H1)}
-\res{Proportion of group-leaky phase 1 splits in C0, C1 and C2 with Wilson 95\% CIs; permutation chi-square $P$; Holm-adjusted pairwise Fisher $P$ and odds ratios.} See Table~\ref{tab:main} and Fig.~\ref{fig:main}.
+Group-leaky phase 1 splits occurred in 10 of 10 C0 runs (Wilson 95\% CI 72\% to 100\%), 10 of 10 C1 runs (72\% to 100\%) and 0 of 10 C2 runs (0\% to 28\%). The share differed across conditions (permutation chi-square 30.0, $P<0.001$ with 20,000 permutations). C0 and C1 each differed from C2 (Fisher exact $P=1.1\times10^{-5}$, Holm-adjusted $P=3.2\times10^{-5}$) and did not differ from each other (both 10 of 10). The ordering C0 $\geq$ C1 $\geq$ C2 was therefore observed, but the C0--C1 step was zero, so H1 is supported only for the contrast with C2. Results were unchanged at exposure tolerances of 0.01, 0.10 and 0.25 in phase 1 (Table~\ref{tab:sens}). See Table~\ref{tab:main} and Fig.~\ref{fig:main}.
 
 \begin{table}[ht]
 \centering
@@ -177,133 +178,172 @@ A pilot of 15 trials (5 per condition, both phases; all 30 submissions valid) pr
 \toprule
 Outcome & C0 & C1 & C2 & Test\\
 \midrule
-Group-leaky split, $n/N$ (\%) [95\% CI] & \res{~} & \res{~} & \res{~} & Permutation $\chi^2$; Fisher + Holm\\
-Median group exposure & \res{~} & \res{~} & \res{~} & Kruskal--Wallis\\
-Median study exposure & \res{~} & \res{~} & \res{~} & Kruskal--Wallis\\
-Reported minus recomputed AUPRC & \res{~} & \res{~} & \res{~} & Kruskal--Wallis\\
+Group-leaky split, $n/N$ [95\% CI] & 10/10 [72--100\%] & 10/10 [72--100\%] & 0/10 [0--28\%] & Permutation $\chi^2$; Fisher + Holm\\
+Median leakage-group exposure & 0.462 & 0.516 & 0.000 & Kruskal--Wallis\\
+Median study exposure (first reference) & 0.069 & 0.788 & 0.713 & Kruskal--Wallis\\
+Reported minus recomputed AUPRC & 0.000 & 0.000 & 0.000 & Kruskal--Wallis\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection*{Leakage exposure and split types}
-\res{Distribution of split types by condition and median exposure by vector; tables \texttt{t1}, \texttt{t3}.}
+In C0, seven runs held out whole studies and three removed only identical peptides; in C1, two held out studies and eight removed only identical peptides; all ten C2 runs held out the supplied leakage groups (Fig.~\ref{fig:main}A). No run held out both groups and studies. Median exposure of held-out rows to training rows was 0.462 (C0), 0.516 (C1) and 0 (C2) for leakage groups, and 0.065, 0.174 and 0 for near-duplicates; identical-peptide exposure was 0 in all conditions (Fig.~\ref{fig:vectors}A). Study exposure was low in C0 (median 0.069) because most C0 runs held out studies, and high in C1 (0.788) and C2 (0.713). Allele and taxon overlap was near complete in all conditions (median 0.84 to 0.99) and does not discriminate between them. Among C2 runs, which controlled leakage groups, all ten still shared studies with training in both phases.
 
-\subsection*{Performance inflation (H2)}
-\res{Recomputed AUPRC and AUROC by condition; difference from the agent-facing baseline; exposed versus unexposed AUPRC gap with bootstrap CI; Kruskal--Wallis $P$ and Cliff's delta.} See Table~\ref{tab:perf}.
+\subsection*{Performance and inflation (H2)}
+Recomputed phase 1 AUPRC was 0.699 (IQR 0.661--0.726) in C0, 0.759 (0.695--0.776) in C1 and 0.811 (0.807--0.813) in C2 (Table~\ref{tab:perf}). All three were below the leakage-controlled baseline of 0.861 (median differences $-0.162$, $-0.102$ and $-0.050$), so leaky splits did not produce AUPRC above that baseline. AUPRC differed across conditions (Kruskal--Wallis $P<0.001$); C0 and C1 were lower than C2 (Holm-adjusted $P=0.0005$ and $0.0009$; Cliff's delta $-1.00$ and $-0.94$), and C0 versus C1 was not significant ($P=0.064$, delta $-0.50$). Because most C0 runs held out studies, which is a harder split, the lower C0 AUPRC reflects split difficulty and not weaker models, and AUPRC cannot be compared across conditions as a measure of leakage. The within-run comparison addresses inflation directly. In C0, AUPRC on held-out rows that shared a leakage group with training was higher than on rows that did not (median 0.749 versus 0.562; median gap 0.198, bootstrap 95\% CI 0.039 to 0.230; Wilcoxon $P=0.014$; positive in 8 of 10 runs). In C1 the gap was 0.021 (CI $-0.049$ to 0.129; $P=0.32$). C2 runs had no exposed rows. H2 is therefore supported in C0 but not in C1.
 
 \begin{table}[ht]
 \centering
-\caption{Model performance (recomputed from submitted predictions).}
+\caption{Model performance, phase 1 (recomputed from submitted predictions).}
 \label{tab:perf}
 \begin{tabular}{@{}lccc@{}}
 \toprule
 Metric & C0 & C1 & C2\\
 \midrule
-AUPRC, median (IQR) & \res{~} & \res{~} & \res{~}\\
-AUROC, median (IQR) & \res{~} & \res{~} & \res{~}\\
-AUPRC difference vs baseline & \res{~} & \res{~} & \res{~}\\
-AUPRC on exposed rows & \res{~} & \res{~} & \res{~}\\
-AUPRC on unexposed rows & \res{~} & \res{~} & \res{~}\\
+AUPRC, median (IQR) & 0.699 (0.661--0.726) & 0.759 (0.695--0.776) & 0.811 (0.807--0.813)\\
+AUROC, median (IQR) & 0.659 (0.618--0.703) & 0.744 (0.665--0.779) & 0.793 (0.789--0.794)\\
+AUPRC difference vs baseline (0.861), median & $-0.162$ & $-0.102$ & $-0.050$\\
+AUPRC on exposed rows, median & 0.749 & 0.737 & n/a\\
+AUPRC on unexposed rows, median & 0.562 & 0.769 & 0.811\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection*{Reported versus recomputed performance}
-\res{Median and range of reported minus recomputed AUPRC; number of runs with a reported mismatch.}
+Every agent's reported AUPRC and AUROC matched the recomputed values (mean difference 0.000, mismatch in 0 of 60 submissions). The inflation observed in C0 was therefore not a reporting error: agents computed correct numbers on splits that shared leakage groups.
 
 \subsection*{Self-review effect (H3)}
-\res{Leaky splits in phase 1 that became non-leaky in phase 2 and the reverse; exact McNemar $P$; Wilcoxon test on exposure change.} See Fig.~\ref{fig:paired}.
+After the neutral self-review question, all 20 leaky splits (10 in C0, 10 in C1) remained group-leaky at the 5\% threshold and no clean split became leaky (exact McNemar $P=1.0$), so H3 as pre-specified, a fall in the share of leaky splits, was not supported. Split types did change (Fig.~\ref{fig:main}, top): in C0, peptide-only splits fell from three to one and two runs moved to near-duplicate control, with study-held-out splits unchanged at seven; in C1, peptide-only splits fell from eight to one, five runs moved to near-duplicate control and study-held-out splits rose from two to four. The continuous exposure did fall. Median leakage-group exposure decreased from 0.462 to 0.158 in C0 (all 10 runs decreased; Wilcoxon $P=0.002$) and from 0.516 to 0.406 in C1 (9 of 10; $P=0.006$), with no change in C2. At a tolerance of 0.10 the number of leaky C0 and C1 runs fell to 6 and 8, and at 0.25 to 4 and 8, so the null result for H3 depends on the 5\% threshold. Median AUPRC change was small ($-0.006$ in C0, $+0.007$ in C1, 0.000 in C2; Wilcoxon $P=0.38$, 0.63 and 0.31; Fig.~\ref{fig:paired}). The exposed-versus-unexposed gap in phase 2 was $-0.031$ in C0 and 0.123 in C1 (CI 0.011 to 0.170, $P=0.065$).
 
 \subsection*{Secondary and process outcomes}
-\res{Regex-flagged versus manually coded audits and percent agreement; turns and cost by condition.}
+Phase 1 cost US\$1.92 across the 30 runs (US\$0.57 to 0.72 per condition) and phase 2 US\$3.42, with mean turns of 5.0, 6.0 and 5.2 in phase 1 and 4.8, 5.4 and 4.4 in phase 2 for C0, C1 and C2. The regular-expression flag for a similarity or overlap audit in phase 1 was 0.80, 0.60 and 0.30 (C0, C1, C2), but in the pilot it agreed poorly with manual coding of whether an audit was performed (kappa $-0.07$ on 30 rows), because the pattern matches grouping code as well as checks. Coded labels (Methods) showed that an explicit check of the relationship between training and held-out rows was rare in phase 1 (2 of 10 C0 runs, 1 of 10 C1 runs and 0 of 10 C2 runs, which used the supplied groups) and more common in phase 2 (6, 3 and 8 of 10). In C2 phase 2, 8 runs checked the supplied split independently and none found a split problem; the review changed their evaluations only through feature or reporting fixes. The regular-expression audit flag agreed poorly with the coded labels (kappa $-0.23$, 35\% agreement on 60 trial-phases), as in the pilot. Conclusions rest on file-derived outcomes; the labels are a secondary description.
 
 \subsection*{Sensitivity analyses}
-\res{Primary outcome at tolerances 0.01 and 0.10; study defined by first reference versus any reference (about 0.36 of S5 held-out rows share any reference with training, a known limitation of the first-reference definition); inclusion of retried and invalid runs; phase 2 as the primary split.} See Table~\ref{tab:sens}.
+Table~\ref{tab:sens} gives the primary outcome under alternative exposure tolerances and phases. The first-reference and any-reference study definitions gave similar medians (for example C1 0.788 and 0.810). Runs with retried or invalid submissions do not exist in this data set.
 
 \begin{table}[ht]
 \centering
-\caption{Sensitivity analyses.}
+\caption{Sensitivity analyses: number of group-leaky runs (C0 / C1 / C2).}
 \label{tab:sens}
 \small
 \begin{tabularx}{\textwidth}{@{}lXl@{}}
 \toprule
-Analysis & Change from primary & Result\\
+Analysis & Change from primary & Leaky runs\\
 \midrule
-Exposure tolerance & 0.01 and 0.10 instead of 0.05 & \res{~}\\
-Study definition & Any shared reference instead of first reference & \res{~}\\
-Exclusions & Include retried and invalid runs & \res{~}\\
-Phase 2 & Phase 2 submission as the primary split & \res{~}\\
-Coding & Regex flags versus manual codes & \res{percent agreement}\\
+Primary (phase 1, tolerance 0.05) & --- & 10 / 10 / 0\\
+Tolerance 0.01 and 0.25, phase 1 & Stricter and looser threshold & 10 / 10 / 0 at both\\
+Tolerance 0.10, phase 2 & Looser threshold & 6 / 8 / 0\\
+Tolerance 0.25, phase 2 & Looser threshold & 4 / 8 / 0\\
+Phase 2 as primary, tolerance 0.05 & Final submission & 10 / 10 / 0\\
+Study definition & Any shared reference instead of first reference & similar medians\\
+Exclusions & Include retried and invalid runs & none occurred\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \paragraph{External validation.} Not applicable to the present design; a second model or dataset is listed under future work.
 
-% Figures (placeholders; replace with results/analysis_main/fig*.pdf)
 \begin{figure}[ht]
 \centering
-\fbox{\parbox{0.9\textwidth}{\centering\vspace{3em}\textit{Figure 1: study overview diagram (to be drawn)}\vspace{3em}}}
-\caption{Study overview. (A) Three conditions and prompt additions. (B) Sandbox and submission contract. (C) Scoring pipeline from the split file to exposure vectors and recomputed AUPRC. All outcomes are measured from the agent's files, not its claims.}
+\begin{tikzpicture}[font=\small,node distance=6mm and 8mm,
+  box/.style={draw,rounded corners=2pt,align=center,inner sep=4pt,minimum height=9mm,fill=gray!8},
+  arr/.style={-{Stealth[length=2mm]}}]
+\node[box,fill=orange!25] (c0) {C0\\task only};
+\node[box,fill=magenta!15,below=of c0] (c1) {C1\\+ generic leakage\\warning};
+\node[box,fill=cyan!20,below=of c1] (c2) {C2\\+ supplied\\leakage groups};
+\node[box,right=14mm of c1,minimum width=30mm] (sb) {Sandbox:\\LCI-IEDB v1.0 table\\(label-derived columns\\removed), shell and\\file tools};
+\node[box,right=10mm of sb] (p1) {Phase 1\\build model,\\write split,\\predictions,\\metrics, report};
+\node[box,right=8mm of p1] (p2) {Phase 2\\neutral\\self-review,\\may revise};
+\node[box,below=8mm of p1,minimum width=45mm] (sc) {Scoring from submitted files\\exposure vectors $\cdot$ split type\\recomputed AUPRC/AUROC\\exposed vs unexposed AUPRC};
+\foreach \c in {c0,c1,c2} \draw[arr] (\c.east) -- (sb.west);
+\draw[arr] (sb) -- (p1); \draw[arr] (p1) -- (p2);
+\draw[arr] (p1) -- (sc); \draw[arr] (p2.south) |- (sc.east);
+\node[above=2mm of c0,font=\bfseries\small] {A};
+\node[above=2mm of sb,font=\bfseries\small] {B};
+\node[above=2mm of sc,xshift=-24mm,font=\bfseries\small] {C};
+\end{tikzpicture}
+\caption{Study overview. (A) Three conditions and prompt additions, assigned in blocked random order. (B) Sandbox and two-phase submission contract. (C) Scoring pipeline from the split file to exposure vectors and recomputed AUPRC. All outcomes are measured from the agent's files, not its claims.}
 \label{fig:overview}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\fbox{\parbox{0.9\textwidth}{\centering\vspace{3em}\textit{Figure 2: dataset and run flow (to be drawn)}\vspace{3em}}}
-\caption{Dataset and run flow. (A) LCI-IEDB v1.0 primary benchmark and reference splits S1--S5. (B) Runs per condition from launch to analysis, with exclusions by cause \res{counts}.}
+\begin{tikzpicture}[font=\small,
+  box/.style={draw,rounded corners=2pt,align=center,inner sep=4pt,fill=gray!8,minimum width=34mm},
+  arr/.style={-{Stealth[length=2mm]}}]
+\node[box] (d) {LCI-IEDB v1.0 primary\\12,380 rows, 6,675 positives\\5,432 leakage groups};
+\node[box,right=12mm of d] (r) {30 trials, blocked\\random order\\(seed 20261109)};
+\node[box,fill=orange!25,right=12mm of r,yshift=14mm] (a0) {C0: 10 runs};
+\node[box,fill=magenta!15,right=12mm of r] (a1) {C1: 10 runs};
+\node[box,fill=cyan!20,right=12mm of r,yshift=-14mm] (a2) {C2: 10 runs};
+\node[box,right=10mm of a1,minimum width=30mm] (v) {60 valid submissions\\(phase 1 and 2)\\no exclusions};
+\draw[arr] (d)--(r); \foreach \x in {a0,a1,a2} {\draw[arr] (r.east)--(\x.west); \draw[arr] (\x.east)--(v.west);}
+\end{tikzpicture}
+\caption{Dataset and run flow. LCI-IEDB v1.0 primary benchmark and the flow of 30 trials from random assignment to analysis. Each condition contributed 10 trials, each trial two phases; all 60 submissions were valid and none was excluded.}
 \label{fig:flow}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\fbox{\parbox{0.9\textwidth}{\centering\vspace{3em}\textit{Figure 3: \texttt{fig1\_split\_types} and \texttt{fig2\_auprc}}\vspace{3em}}}
-\caption{Main results. (A) Split types by condition. (B) Share of group-leaky phase 1 splits with Wilson 95\% CIs. (C) Recomputed AUPRC with release reference lines (chance 0.539; S5 0.550; S1 0.649; S4 0.756) and agent-facing baselines (study 0.748; group 0.861). \res{Filled from output.}}
+\includegraphics[width=\textwidth]{figures/fig1_split_types.pdf}\\[4pt]
+\includegraphics[width=\textwidth]{figures/fig2_auprc.pdf}
+\caption{Main results. Top: split types chosen by condition (counts in bars) in phase 1 and after the self-review question. Bottom: recomputed AUPRC per run with the condition median (black bar), release reference (chance 0.54) and agent-facing baselines (study 0.75, leakage group 0.86, random 0.96). Point colours match the split types in the top panel. The plot labels C2 ``tool-assisted''; in the text it is ``groups supplied''. C0 runs mostly held out studies, a harder split, so their lower AUPRC is not evidence of weaker models.}
 \label{fig:main}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\fbox{\parbox{0.9\textwidth}{\centering\vspace{3em}\textit{Figure 4: exposure vectors and exposed vs unexposed AUPRC}\vspace{3em}}}
-\caption{Sources of leakage. (A) Exposure by vector for each condition. (B) AUPRC on exposed versus unexposed held-out rows per run. This is a descriptive analysis of overlap, not a model-feature interpretation.}
+\includegraphics[width=\textwidth]{figures/fig4_exposure.pdf}
+\caption{Sources of leakage, phase 1. (A) Median share of held-out rows exposed to training rows, by exposure vector and condition. Allele and taxon overlap is near complete in every condition. (B) AUPRC on held-out rows that did (filled) and did not (open) share a leakage group with training, per run, for C0 and C1; C2 had no exposed rows. This is a descriptive analysis of overlap, not a model-feature interpretation.}
 \label{fig:vectors}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\fbox{\parbox{0.9\textwidth}{\centering\vspace{3em}\textit{Figure 5: \texttt{fig3\_paired\_change}}\vspace{3em}}}
-\caption{Self-review effect. (A) Paired exposure before and after the review question, by condition. (B) Change in AUPRC. Runs that became non-leaky are highlighted.}
+\includegraphics[width=\textwidth]{figures/fig3_paired_change.pdf}
+\caption{Self-review effect on performance. Recomputed AUPRC for each run in phase 1 and phase 2 by condition; the dashed line is the S1 release reference (0.649). Leakage-group exposure fell in most C0 and C1 runs (see text) while AUPRC changed little.}
 \label{fig:paired}
 \end{figure}
 
 %--------------------------------------------------------------
 \section*{Discussion}
-\res{Principal findings: one paragraph stating (1) the share of group-leaky splits in C0, (2) whether C1 and C2 changed it, (3) the size of inflation on exposed rows and (4) whether self-review corrected leakage.}
+In this controlled evaluation of one agent on one task, minimal instructions led to evaluation splits that looked reasonable but shared leakage groups with training rows in every run, a generic warning did not change that, and supplying the curator's groups removed group leakage in every run. All 20 leaky C0 and C1 splits remained group-leaky after a neutral self-review question, although exposure fell in nearly all of them. The agents computed their metrics correctly: reported and recomputed values matched in all 60 submissions.
 
-Leakage inflating biomedical machine-learning performance is documented for human-designed pipelines \cite{Kapoor2023}, and homology- and group-aware splitting is standard in peptide--MHC work \cite{Reynisson2020}. Our contribution is to ask whether an agent reproduces that practice unprompted. \todo{add verified citations on LLM-agent data-science benchmarks and on peptide--MHC split practice}.
+\subsection*{Interpretation}
+Two readings of the C0 and C1 results follow from the data. First, the agents did act on a notion of leakage, but a different one from the curators': seven of ten C0 runs held out whole studies and most of the remaining runs removed identical peptides, which are intuitive safeguards that leave related peptides and shared antigens on both sides. Second, the generic warning in C1 did not shift this behavior; C1 runs mostly removed identical peptides only, so the warning produced a statement of intent without a stronger split. Supplying groups in C2 turned leakage control into a lookup, which implies that curation and documentation, not exhortation, were the effective intervention here. Even so, all ten C2 runs still shared studies with training, because the supplied groups define leakage at the peptide level and not at the study level; the agents used the information provided and went no further.
 
-\res{Interpretation conditional on results.} If a generic warning does not change the split, agents may treat ``avoid leakage'' as satisfied by removing duplicate rows. If supplied groups reduce leakage, curation, not prompting, is the effective intervention. If self-review corrects leakage, the agent can detect a problem it did not prevent, which supports a review step in agent workflows. The smoke trial suggests that agents group on the most visible identifier (peptide, PubMed identifier) and miss indirect links such as shared 8-mers; transcript coding of audit type tests this across runs and it remains a hypothesis.
+The within-run comparison shows inflation in C0 (AUPRC 0.749 on exposed rows versus 0.562 on unexposed rows) but not in C1, where unexposed rows scored as high as exposed ones, so the relation between exposure and optimism was not uniform and the evidence for H2 is limited to C0. Comparisons of AUPRC across conditions are confounded by split difficulty: C0 runs mostly held out studies, a harder split with a baseline of 0.748, and the lower C0 AUPRC reflects that and not weaker models. All conditions scored below the leakage-controlled baseline of 0.861, so none of the agents' leaky splits produced a result that exceeded what a fixed pipeline reaches on a group-controlled split. Leakage therefore did not generate an impressive headline number here; its effect is that the reported number answers a different question from the one the user asked.
 
-Users of agent-run analyses should recompute the metric from the submitted files and report train--test exposure rather than rely on the agent's summary. Dataset curators can ship group files with a short README; C2 isolates what that provides.
+\subsection*{Self-review}
+The result for H3 depends on the outcome definition. By the pre-specified binary criterion, which requires fewer than 5\% of held-out rows to share a leakage group, no run was repaired. By continuous exposure, self-review reduced leakage-group exposure significantly (C0 0.462 to 0.158, C1 0.516 to 0.406), and at a tolerance of 0.10, 4 of 10 C0 runs and 2 of 10 C1 runs became non-leaky. We report both and consider the continuous result a secondary, partly post-hoc view of an effect that the binary primary outcome missed.
 
-\paragraph{Strengths.} Exposure and performance are recomputed from the agent's own files; the reference is curator-audited; the baseline accounts for metadata the agent can see; hypotheses and exclusions were fixed beforehand; code and prompts are public.
+\subsection*{Comparison with the literature}
+Leakage inflating performance is documented for human-designed machine-learning pipelines \cite{Kapoor2023}, and homology- and group-aware splitting is standard in peptide--MHC work \cite{Reynisson2020}. Our result is that an agent reproduces the intuitive part of that practice but not the part that needs knowledge of the data's structure, unless the structure is supplied. This complements audits of AI-scientist systems, which report undisclosed subsampling and test-set information in selection \cite{Luo2025}, and agent benchmarks that find evaluator tampering and few held-out access attempts \cite{Atinafu2026}: here the agents did not access held-out data, yet their splits leaked through related rows.
 
-\paragraph{Limitations.}
+\subsection*{Practical implications}
+Users of agent-run analyses should recompute the metric from the submitted files and report train--test exposure rather than rely on the agent's summary. Dataset curators can ship group files with a short README; C2 shows that this changes agent behavior where a generic warning does not. A self-review step is cheap and reduces exposure, but should not be relied on to remove it.
+
+\subsection*{Strengths}
+Exposure and performance are recomputed from the agent's own files. The reference is curator-audited, and the baseline accounts for the metadata the agent can see. Hypotheses and exclusions were fixed before the main run, the pilot was kept out of inference, and code and prompts are public.
+
+\subsection*{Limitations}
 \begin{itemize}
 \item One model, one task and one dataset; results may not transfer to other models, versions, scaffolds or domains, and agent behavior may change with model version.
-\item Small number of runs per condition; the design is underpowered for moderate effects, so null results are inconclusive.
-\item Possible ceiling effect: if C0 and C1 are uniformly leaky, as in the pilot, the design cannot distinguish them, and a difference between C0 and C1 is not detectable at the planned sample size.
-\item The group-leaky label depends on curator-defined groups and a 5\% threshold; first-reference study exposure under-counts any-reference overlap (about 0.36 for S5).
+\item Ten runs per condition. The design detected large differences, such as C2 against C0 and C1, but cannot distinguish C0 from C1 when both are at 100\%.
+\item Ceiling effect: C0 and C1 were uniformly leaky at the 5\% threshold, so the primary outcome gives no information on their relative severity; continuous exposure is the more sensitive measure.
+\item The group-leaky label depends on curator-defined groups and a 5\% threshold, and the H3 result is threshold dependent. First-reference study exposure under-counts any-reference overlap in the release's own S5 split (about 0.36).
 \item C2 supplies the groups used to score the outcome, so it tests use of supplied information, not discovery.
-\item Regex transcript flags are heuristic, and manual coding was done by a single coder.
+\item Regular-expression transcript flags agreed poorly with coded labels. Main-run labels were assigned by a language model from the same family as the studied agent, without independent human verification, and may share its blind spots; the audit outcomes therefore rest on file-derived measures and the labels are descriptive.
 \item Phase 2 occurs in the same session as phase 1, so it measures self-review in context, not review by a fresh agent.
+\item The exposed-versus-unexposed and continuous-exposure comparisons were computed from the scored files after the main run; they use tests named in the rubric but were not part of the automated summary.
 \end{itemize}
 
-\paragraph{Future work.} A second model family and later versions; a second dataset with different leakage structure; a scaffolded audit step; variation of the self-review prompt; and a fresh-agent review arm.
+\subsection*{Future work}
+A second model family and later versions; a second dataset with different leakage structure; a scaffolded audit step; variation of the self-review prompt; a fresh-agent review arm; and a supplied-groups condition that also lists study identifiers.
 
 %--------------------------------------------------------------
 \section*{Conclusions}
-\res{Two sentences stating whether agent-chosen splits were leaky under minimal instructions, whether any intervention reduced it, and the importance for the field.} Recomputing exposure from submitted files is a practical check on agent-run analyses regardless of the outcome.
+Under minimal or generically cautionary instructions, one autonomous agent chose splits that shared leakage groups with training rows in all 20 runs, a generic warning did not help, and supplying curator groups removed group leakage but left study overlap. Self-review reduced but did not remove exposure. The agent's reported metrics were accurate, so the risk lies in the question the evaluation answers, not in its arithmetic; recomputing exposure from submitted files is a practical check on agent-run analyses, and curated leakage annotations help.
 
 \section*{List of abbreviations}
 \noindent AUPRC: area under the precision--recall curve; AUROC: area under the receiver operating characteristic curve; CI: confidence interval; GBM: gradient-boosting machine; HistGB: histogram-based gradient boosting; IEDB: Immune Epitope Database; LCI-IEDB: leakage-controlled benchmark derived from IEDB; LLM: large language model; MHC: major histocompatibility complex.
@@ -336,10 +376,12 @@ Not applicable.
 
 %--------------------------------------------------------------
 \begin{thebibliography}{9}
-% Entries below were written from memory: verify every field (authors, volume, pages, DOI) before submission.
+% Kapoor, Vita and Reynisson entries were written from memory: verify volume, pages and authors before submission.
 \bibitem{Kapoor2023} Kapoor S, Narayanan A. Leakage and the reproducibility crisis in machine-learning-based science. Patterns. 2023;4(9):100804.
 \bibitem{Vita2019} Vita R, Mahajan S, Overton JA, Dhanda SK, Martini S, Cantrell JR, et al. The Immune Epitope Database (IEDB): 2018 update. Nucleic Acids Res. 2019;47(D1):D339--43.
 \bibitem{Reynisson2020} Reynisson B, Alvarez B, Paul S, Peters B, Nielsen M. NetMHCpan-4.1 and NetMHCIIpan-4.0: improved predictions of MHC antigen presentation by concurrent motif deconvolution and integration of MS MHC eluted ligand data. Nucleic Acids Res. 2020;48(W1):W449--54.
+\bibitem{Luo2025} Luo Z, Kasirzadeh A, Shah NB. The more you automate, the less you see: hidden pitfalls of AI scientist systems. arXiv. 2025;2509.08713.
+\bibitem{Atinafu2026} Atinafu Y, Cohen R. RewardHackingAgents: benchmarking evaluation integrity for LLM ML-engineering agents. arXiv. 2026;2603.11337.
 \bibitem{Repo} Hu H. agent-leakage-evaluation: code, prompts and analysis for the leakage evaluation of autonomous agents. GitHub. https://github.com/willhhx/agent-leakage-evaluation. Accessed 9 Nov 2026.
 \end{thebibliography}
 
