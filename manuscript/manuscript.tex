@@ -78,7 +78,7 @@ This is a controlled, blocked, seeded randomized evaluation of an AI system (see
 The testbed is the primary peptide-versus-N2 benchmark of LCI-IEDB v1.0: 12,380 rows, 6,675 positives (prevalence 0.539), grouped into 5,432 leakage groups across all tiers. The release defines five reference splits: S1 antigen-group, S2 HLA, S3 organism, S4 random and S5 study-held-out. Reference gradient-boosting AUPRC from the release (peptide features) is 0.756 (S4), 0.649 (S1) and 0.550 (S5); chance equals prevalence, 0.539. Release integrity was checked against the previously reported values. The release is archived on Zenodo \cite{LCIIEDB}.
 
 \subsection*{Agent, sandbox and conditions}
-The agent was Claude Sonnet 5.5 (Anthropic), run headless through the Claude Code command-line interface with tools limited to shell, file read/write/edit and search, permission mode set to deny unlisted actions, no settings sources, no external tool servers, no slash commands, and project-memory features disabled. Each trial received a fresh sandbox containing the data (13 label-derived columns removed) and a task prompt with the row count substituted. The study agent is the object of the experiment; the use of an LLM is therefore documented here as required by the journal.
+The agent was Claude Sonnet 5.5 (Anthropic), run headless through the Claude Code command-line interface with tools limited to shell, file read/write/edit and search, permission mode set to deny unlisted actions, no settings sources, no external tool servers, no slash commands, and project-memory features disabled. Each trial received a fresh sandbox containing the data (13 label-derived columns removed) and a task prompt with the row count substituted. The study agent is the object of the experiment; the use of an LLM is therefore documented here as required by the journal. The conditions are listed in Table~\ref{tab:conditions} and the study design is shown in Fig.~\ref{fig:overview}.
 
 \begin{table}[ht]
 \centering
@@ -94,6 +94,30 @@ C2 (groups supplied) & Pointer to \texttt{leakage\_groups.csv.gz} and its README
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[font=\small,node distance=6mm and 8mm,
+  box/.style={draw,rounded corners=2pt,align=center,inner sep=4pt,minimum height=9mm,fill=gray!8},
+  arr/.style={-{Stealth[length=2mm]}}]
+\node[box,fill=orange!25] (c0) {C0\\task only};
+\node[box,fill=magenta!15,below=of c0] (c1) {C1\\+ generic leakage\\warning};
+\node[box,fill=cyan!20,below=of c1] (c2) {C2\\+ supplied\\leakage groups};
+\node[box,right=14mm of c1,minimum width=30mm] (sb) {Sandbox:\\LCI-IEDB v1.0 table\\(label-derived columns\\removed), shell and\\file tools};
+\node[box,right=10mm of sb] (p1) {Phase 1\\build model,\\write split,\\predictions,\\metrics, report};
+\node[box,right=8mm of p1] (p2) {Phase 2\\neutral\\self-review,\\may revise};
+\node[box,below=8mm of p1,minimum width=45mm] (sc) {Scoring from submitted files\\exposure vectors $\cdot$ split type\\recomputed AUPRC/AUROC\\exposed vs unexposed AUPRC};
+\foreach \c in {c0,c1,c2} \draw[arr] (\c.east) -- (sb.west);
+\draw[arr] (sb) -- (p1); \draw[arr] (p1) -- (p2);
+\draw[arr] (p1) -- (sc); \draw[arr] (p2.south) |- (sc.east);
+\node[above=2mm of c0,font=\bfseries\small] {A};
+\node[above=2mm of sb,font=\bfseries\small] {B};
+\node[above=2mm of sc,xshift=-24mm,font=\bfseries\small] {C};
+\end{tikzpicture}
+\caption{Study overview. (A) Three conditions and prompt additions, assigned in blocked random order. (B) Sandbox and two-phase submission contract. (C) Scoring pipeline from the split file to exposure vectors and recomputed AUPRC. All outcomes are measured from the agent's files, not its claims.}
+\label{fig:overview}
+\end{figure}
+
 
 \subsection*{Submission contract and phases}
 In phase 1 the agent builds a model and writes \texttt{submission/split.csv} (row identifier and fold, ``train'' or a held-out label), \texttt{predictions.csv} (row identifier and score), \texttt{results.json} (model, AUPRC, AUROC, number held out) and \texttt{report.md}. In phase 2 the same session is resumed with a neutral self-review question, and the agent may revise the submission. Phase 1 is the primary analysis for H1 and H2; phase 1 to phase 2 change is the analysis for H3.
@@ -143,6 +167,24 @@ Exclusions & none\\
 \end{tabular}
 \end{table}
 
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[font=\small,
+  box/.style={draw,rounded corners=2pt,align=center,inner sep=4pt,fill=gray!8,minimum width=34mm},
+  arr/.style={-{Stealth[length=2mm]}}]
+\node[box] (d) {LCI-IEDB v1.0 primary\\12,380 rows, 6,675 positives\\5,432 leakage groups};
+\node[box,right=12mm of d] (r) {30 trials, blocked\\random order\\(seed 20261109)};
+\node[box,fill=orange!25,right=12mm of r,yshift=14mm] (a0) {C0: 10 runs};
+\node[box,fill=magenta!15,right=12mm of r] (a1) {C1: 10 runs};
+\node[box,fill=cyan!20,right=12mm of r,yshift=-14mm] (a2) {C2: 10 runs};
+\node[box,right=10mm of a1,minimum width=30mm] (v) {60 valid submissions\\(phase 1 and 2)\\no exclusions};
+\draw[arr] (d)--(r); \foreach \x in {a0,a1,a2} {\draw[arr] (r.east)--(\x.west); \draw[arr] (\x.east)--(v.west);}
+\end{tikzpicture}
+\caption{Dataset and run flow. LCI-IEDB v1.0 primary benchmark and the flow of 30 trials from random assignment to analysis. Each condition contributed 10 trials, each trial two phases; all 60 submissions were valid and none was excluded.}
+\label{fig:flow}
+\end{figure}
+
+
 \subsection*{Reference values}
 Table~\ref{tab:reference} gives the reference values against which agent splits are read.
 
@@ -188,8 +230,25 @@ Reported minus recomputed AUPRC & 0.000 & 0.000 & 0.000 & Kruskal--Wallis\\
 \end{tabularx}
 \end{table}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_split_types.pdf}\\[4pt]
+\includegraphics[width=\textwidth]{figures/fig2_auprc.pdf}
+\caption{Main results. Top: split types chosen by condition (counts in bars) in phase 1 and after the self-review question. Bottom: recomputed AUPRC per run with the condition median (black bar), release reference (chance 0.54) and agent-facing baselines (study 0.75, leakage group 0.86, random 0.96). Point colours match the split types in the top panel. The plot labels C2 ``tool-assisted''; in the text it is ``groups supplied''. C0 runs mostly held out studies, a harder split, so their lower AUPRC is not evidence of weaker models.}
+\label{fig:main}
+\end{figure}
+
+
 \subsection*{Leakage exposure and split types}
 In C0, seven runs held out whole studies and three removed only identical peptides; in C1, two held out studies and eight removed only identical peptides; all ten C2 runs held out the supplied leakage groups (Fig.~\ref{fig:main}A). No run held out both groups and studies. Median exposure of held-out rows to training rows was 0.462 (C0), 0.516 (C1) and 0 (C2) for leakage groups, and 0.065, 0.174 and 0 for near-duplicates; identical-peptide exposure was 0 in all conditions (Fig.~\ref{fig:vectors}A). Study exposure was low in C0 (median 0.069) because most C0 runs held out studies, and high in C1 (0.788) and C2 (0.713). Allele and taxon overlap was near complete in all conditions (median 0.84 to 0.99) and does not discriminate between them. Among C2 runs, which controlled leakage groups, all ten still shared studies with training in both phases.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/fig4_exposure.pdf}
+\caption{Sources of leakage, phase 1. (A) Median share of held-out rows exposed to training rows, by exposure vector and condition. Allele and taxon overlap is near complete in every condition. (B) AUPRC on held-out rows that did (filled) and did not (open) share a leakage group with training, per run, for C0 and C1; C2 had no exposed rows. This is a descriptive analysis of overlap, not a model-feature interpretation.}
+\label{fig:vectors}
+\end{figure}
+
 
 \subsection*{Performance and inflation (H2)}
 Recomputed phase 1 AUPRC was 0.699 (IQR 0.661--0.726) in C0, 0.759 (0.695--0.776) in C1 and 0.811 (0.807--0.813) in C2 (Table~\ref{tab:perf}). All three were below the leakage-controlled baseline of 0.861 (median differences $-0.162$, $-0.102$ and $-0.050$), so leaky splits did not produce AUPRC above that baseline. AUPRC differed across conditions (Kruskal--Wallis $P<0.001$); C0 and C1 were lower than C2 (Holm-adjusted $P=0.0005$ and $0.0009$; Cliff's delta $-1.00$ and $-0.94$), and C0 versus C1 was not significant ($P=0.064$, delta $-0.50$). Because most C0 runs held out studies, which is a harder split, the lower C0 AUPRC reflects split difficulty and not weaker models, and AUPRC cannot be compared across conditions as a measure of leakage. The within-run comparison addresses inflation directly. In C0, AUPRC on held-out rows that shared a leakage group with training was higher than on rows that did not (median 0.749 versus 0.562; median gap 0.198, bootstrap 95\% CI 0.039 to 0.230; Wilcoxon $P=0.014$; positive in 8 of 10 runs). In C1 the gap was 0.021 (CI $-0.049$ to 0.129; $P=0.32$). C2 runs had no exposed rows. H2 is therefore supported in C0 but not in C1.
@@ -216,6 +275,14 @@ Every agent's reported AUPRC and AUROC matched the recomputed values (mean diffe
 
 \subsection*{Self-review effect (H3)}
 After the neutral self-review question, all 20 leaky splits (10 in C0, 10 in C1) remained group-leaky at the 5\% threshold and no clean split became leaky (exact McNemar $P=1.0$), so H3 as pre-specified, a fall in the share of leaky splits, was not supported. Split types did change (Fig.~\ref{fig:main}, top): in C0, peptide-only splits fell from three to one and two runs moved to near-duplicate control, with study-held-out splits unchanged at seven; in C1, peptide-only splits fell from eight to one, five runs moved to near-duplicate control and study-held-out splits rose from two to four. The continuous exposure did fall. Median leakage-group exposure decreased from 0.462 to 0.158 in C0 (all 10 runs decreased; Wilcoxon $P=0.002$) and from 0.516 to 0.406 in C1 (9 of 10; $P=0.006$), with no change in C2. At a tolerance of 0.10 the number of leaky C0 and C1 runs fell to 6 and 8, and at 0.25 to 4 and 8, so the null result for H3 depends on the 5\% threshold. Median AUPRC change was small ($-0.006$ in C0, $+0.007$ in C1, 0.000 in C2; Wilcoxon $P=0.38$, 0.63 and 0.31; Fig.~\ref{fig:paired}). The exposed-versus-unexposed gap in phase 2 was $-0.031$ in C0 and 0.123 in C1 (CI 0.011 to 0.170, $P=0.065$).
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/fig3_paired_change.pdf}
+\caption{Self-review effect on performance. Recomputed AUPRC for each run in phase 1 and phase 2 by condition; the dashed line is the S1 release reference (0.649). Leakage-group exposure fell in most C0 and C1 runs (see text) while AUPRC changed little.}
+\label{fig:paired}
+\end{figure}
+
 
 \subsection*{Secondary and process outcomes}
 Phase 1 cost US\$1.92 across the 30 runs (US\$0.57 to 0.72 per condition) and phase 2 US\$3.42, with mean turns of 5.0, 6.0 and 5.2 in phase 1 and 4.8, 5.4 and 4.4 in phase 2 for C0, C1 and C2. The regular-expression flag for a similarity or overlap audit in phase 1 was 0.80, 0.60 and 0.30 (C0, C1, C2), but in the pilot it agreed poorly with manual coding of whether an audit was performed (kappa $-0.07$ on 30 rows), because the pattern matches grouping code as well as checks. Coded labels (Methods) showed that an explicit check of the relationship between training and held-out rows was rare in phase 1 (2 of 10 C0 runs, 1 of 10 C1 runs and 0 of 10 C2 runs, which used the supplied groups) and more common in phase 2 (6, 3 and 8 of 10). In C2 phase 2, 8 runs checked the supplied split independently and none found a split problem; the review changed their evaluations only through feature or reporting fixes. The regular-expression audit flag agreed poorly with the coded labels (kappa $-0.23$, 35\% agreement on 60 trial-phases), as in the pilot. Conclusions rest on file-derived outcomes; the labels are a secondary description.
@@ -245,67 +312,10 @@ Exclusions & Include retried and invalid runs & none occurred\\
 
 \paragraph{External validation.} Not applicable to the present design; a second model or dataset is listed under future work.
 
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[font=\small,node distance=6mm and 8mm,
-  box/.style={draw,rounded corners=2pt,align=center,inner sep=4pt,minimum height=9mm,fill=gray!8},
-  arr/.style={-{Stealth[length=2mm]}}]
-\node[box,fill=orange!25] (c0) {C0\\task only};
-\node[box,fill=magenta!15,below=of c0] (c1) {C1\\+ generic leakage\\warning};
-\node[box,fill=cyan!20,below=of c1] (c2) {C2\\+ supplied\\leakage groups};
-\node[box,right=14mm of c1,minimum width=30mm] (sb) {Sandbox:\\LCI-IEDB v1.0 table\\(label-derived columns\\removed), shell and\\file tools};
-\node[box,right=10mm of sb] (p1) {Phase 1\\build model,\\write split,\\predictions,\\metrics, report};
-\node[box,right=8mm of p1] (p2) {Phase 2\\neutral\\self-review,\\may revise};
-\node[box,below=8mm of p1,minimum width=45mm] (sc) {Scoring from submitted files\\exposure vectors $\cdot$ split type\\recomputed AUPRC/AUROC\\exposed vs unexposed AUPRC};
-\foreach \c in {c0,c1,c2} \draw[arr] (\c.east) -- (sb.west);
-\draw[arr] (sb) -- (p1); \draw[arr] (p1) -- (p2);
-\draw[arr] (p1) -- (sc); \draw[arr] (p2.south) |- (sc.east);
-\node[above=2mm of c0,font=\bfseries\small] {A};
-\node[above=2mm of sb,font=\bfseries\small] {B};
-\node[above=2mm of sc,xshift=-24mm,font=\bfseries\small] {C};
-\end{tikzpicture}
-\caption{Study overview. (A) Three conditions and prompt additions, assigned in blocked random order. (B) Sandbox and two-phase submission contract. (C) Scoring pipeline from the split file to exposure vectors and recomputed AUPRC. All outcomes are measured from the agent's files, not its claims.}
-\label{fig:overview}
-\end{figure}
 
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[font=\small,
-  box/.style={draw,rounded corners=2pt,align=center,inner sep=4pt,fill=gray!8,minimum width=34mm},
-  arr/.style={-{Stealth[length=2mm]}}]
-\node[box] (d) {LCI-IEDB v1.0 primary\\12,380 rows, 6,675 positives\\5,432 leakage groups};
-\node[box,right=12mm of d] (r) {30 trials, blocked\\random order\\(seed 20261109)};
-\node[box,fill=orange!25,right=12mm of r,yshift=14mm] (a0) {C0: 10 runs};
-\node[box,fill=magenta!15,right=12mm of r] (a1) {C1: 10 runs};
-\node[box,fill=cyan!20,right=12mm of r,yshift=-14mm] (a2) {C2: 10 runs};
-\node[box,right=10mm of a1,minimum width=30mm] (v) {60 valid submissions\\(phase 1 and 2)\\no exclusions};
-\draw[arr] (d)--(r); \foreach \x in {a0,a1,a2} {\draw[arr] (r.east)--(\x.west); \draw[arr] (\x.east)--(v.west);}
-\end{tikzpicture}
-\caption{Dataset and run flow. LCI-IEDB v1.0 primary benchmark and the flow of 30 trials from random assignment to analysis. Each condition contributed 10 trials, each trial two phases; all 60 submissions were valid and none was excluded.}
-\label{fig:flow}
-\end{figure}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\textwidth]{figures/fig1_split_types.pdf}\\[4pt]
-\includegraphics[width=\textwidth]{figures/fig2_auprc.pdf}
-\caption{Main results. Top: split types chosen by condition (counts in bars) in phase 1 and after the self-review question. Bottom: recomputed AUPRC per run with the condition median (black bar), release reference (chance 0.54) and agent-facing baselines (study 0.75, leakage group 0.86, random 0.96). Point colours match the split types in the top panel. The plot labels C2 ``tool-assisted''; in the text it is ``groups supplied''. C0 runs mostly held out studies, a harder split, so their lower AUPRC is not evidence of weaker models.}
-\label{fig:main}
-\end{figure}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\textwidth]{figures/fig4_exposure.pdf}
-\caption{Sources of leakage, phase 1. (A) Median share of held-out rows exposed to training rows, by exposure vector and condition. Allele and taxon overlap is near complete in every condition. (B) AUPRC on held-out rows that did (filled) and did not (open) share a leakage group with training, per run, for C0 and C1; C2 had no exposed rows. This is a descriptive analysis of overlap, not a model-feature interpretation.}
-\label{fig:vectors}
-\end{figure}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\textwidth]{figures/fig3_paired_change.pdf}
-\caption{Self-review effect on performance. Recomputed AUPRC for each run in phase 1 and phase 2 by condition; the dashed line is the S1 release reference (0.649). Leakage-group exposure fell in most C0 and C1 runs (see text) while AUPRC changed little.}
-\label{fig:paired}
-\end{figure}
 
 %--------------------------------------------------------------
 \section*{Discussion}
